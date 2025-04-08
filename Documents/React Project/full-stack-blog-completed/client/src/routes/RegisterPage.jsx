@@ -148,7 +148,7 @@ const RegisterPage = () => {
                 </svg>
               </div>
               <p className="text-gray-600 dark:text-gray-300 text-sm">
-                We've sent a verification code to <span className="font-medium text-gray-800 dark:text-gray-200">{email}</span>
+                We&apos;ve sent a verification code to <span className="font-medium text-gray-800 dark:text-gray-200">{email}</span>
               </p>
             </div>
             
@@ -195,7 +195,7 @@ const RegisterPage = () => {
                   disabled={isSubmitting}
                   className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline focus:outline-none disabled:opacity-70"
                 >
-                  Didn't receive the code? Send again
+                  Didn&apos;t receive the code? Send again
                 </button>
               </div>
             </form>

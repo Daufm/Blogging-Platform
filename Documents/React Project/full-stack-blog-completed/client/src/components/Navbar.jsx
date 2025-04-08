@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "./Image";
 import { Link } from "react-router-dom";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);

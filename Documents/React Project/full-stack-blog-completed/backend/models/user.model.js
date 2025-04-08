@@ -21,6 +21,11 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    role:{
+      type: String,
+      enum: ["Subscriber", "Admin"],
+      default: "Subscriber",
+    },
     img: {
       type: String,
     },

@@ -4,6 +4,9 @@ import TempOTP from "../models/TempOTP.js";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { body, validationResult } from "express-validator";
+import 'dotenv/config';
 
 
 // Request OTP Controller
@@ -59,7 +62,7 @@ export const requestOtp = async (req, res) => {
 
 // Verify OTP and register user
 export const verifyAndRegister = async (req, res) => {
-  const { username, email, password ,otp} = req.body;
+  const { username, email, password ,otp,role} = req.body;
   
   try {
     // Find the temporary OTP entry
@@ -87,6 +90,7 @@ console.log("i pass here");
       email,
       password: hashedPassword,
       savedPosts: [],
+      role: 'Subscriber',
       isVerified: true // User is pre-verified since OTP is confirmed
     });
     
@@ -102,6 +106,57 @@ console.log("i pass here");
   }
 };
 
+
+
+
+// This controller handles user login
+export const Login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Sanitize and validate input
+    await body("email").isEmail().normalizeEmail().run(req);
+    await body("password").notEmpty().trim().escape().run(req);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Create a JWT
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" } // Token expires in 1 hour
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error in Login:", error);
+    res.status(500).json({ message: "Error logging in", error });
+  }
+};
 
 
 export const getUserSavedPosts = async (req, res) => {

@@ -1,20 +1,14 @@
 import ImageKit from "imagekit";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import jwt from "jsonwebtoken"; // Import jwt for token verification
 import 'dotenv/config';
-
-
-
-
-
 
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 2;
 
   const query = {};
-
-  console.log(req.query);
 
   const cat = req.query.cat;
   const author = req.query.author;
@@ -89,97 +83,116 @@ export const getPost = async (req, res) => {
 };
 
 export const createPost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const token = req.headers.authorization?.split(" ")[1]; // Extract JWT from Authorization header
 
-  console.log(req.headers);
-
-  if (!clerkUserId) {
+  if (!token) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const user = await User.findOne({ clerkUserId });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify and decode the JWT
+    const userId = decoded.id; // Extract user ID from the token
 
-  if (!user) {
-    return res.status(404).json("User not found!");
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json("User not found!");
+    }
+
+    let slug = req.body.title.replace(/ /g, "-").toLowerCase();
+
+    let existingPost = await Post.findOne({ slug });
+
+    let counter = 2;
+
+    while (existingPost) {
+      slug = `${slug}-${counter}`;
+      existingPost = await Post.findOne({ slug });
+      counter++;
+    }
+
+    const newPost = new Post({ user: user._id, slug, ...req.body });
+
+    const post = await newPost.save();
+    res.status(200).json(post);
+  } catch (error) {
+    console.error(error);
+    res.status(403).json("Invalid or expired token!");
   }
-
-  let slug = req.body.title.replace(/ /g, "-").toLowerCase();
-
-  let existingPost = await Post.findOne({ slug });
-
-  let counter = 2;
-
-  while (existingPost) {
-    slug = `${slug}-${counter}`;
-    existingPost = await Post.findOne({ slug });
-    counter++;
-  }
-
-  const newPost = new Post({ user: user._id, slug, ...req.body });
-
-  const post = await newPost.save();
-  res.status(200).json(post);
 };
 
 export const deletePost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const token = req.headers.authorization?.split(" ")[1]; // Extract JWT from Authorization header
 
-  if (!clerkUserId) {
+  if (!token) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify and decode the JWT
+    const userId = decoded.id; // Extract user ID from the token
+    const role = decoded.role || "user"; // Extract role from the token
 
-  if (role === "admin") {
-    await Post.findByIdAndDelete(req.params.id);
-    return res.status(200).json("Post has been deleted");
+    if (role === "admin") {
+      await Post.findByIdAndDelete(req.params.id);
+      return res.status(200).json("Post has been deleted");
+    }
+
+    const user = await User.findById(userId);
+
+    const deletedPost = await Post.findOneAndDelete({
+      _id: req.params.id,
+      user: user._id,
+    });
+
+    if (!deletedPost) {
+      return res.status(403).json("You can delete only your posts!");
+    }
+
+    res.status(200).json("Post has been deleted");
+  } catch (error) {
+    console.error(error);
+    res.status(403).json("Invalid or expired token!");
   }
-
-  const user = await User.findOne({ clerkUserId });
-
-  const deletedPost = await Post.findOneAndDelete({
-    _id: req.params.id,
-    user: user._id,
-  });
-
-  if (!deletedPost) {
-    return res.status(403).json("You can delete only your posts!");
-  }
-
-  res.status(200).json("Post has been deleted");
 };
 
 export const featurePost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
-  const postId = req.body.postId;
+  const token = req.headers.authorization?.split(" ")[1]; // Extract JWT from Authorization header
 
-  if (!clerkUserId) {
+  if (!token) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify and decode the JWT
+    const role = decoded.role || "user"; // Extract role from the token
 
-  if (role !== "admin") {
-    return res.status(403).json("You cannot feature posts!");
+    if (role !== "admin") {
+      return res.status(403).json("You cannot feature posts!");
+    }
+
+    const postId = req.body.postId;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json("Post not found!");
+    }
+
+    const isFeatured = post.isFeatured;
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      {
+        isFeatured: !isFeatured,
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error(error);
+    res.status(403).json("Invalid or expired token!");
   }
-
-  const post = await Post.findById(postId);
-
-  if (!post) {
-    return res.status(404).json("Post not found!");
-  }
-
-  const isFeatured = post.isFeatured;
-
-  const updatedPost = await Post.findByIdAndUpdate(
-    postId,
-    {
-      isFeatured: !isFeatured,
-    },
-    { new: true }
-  );
-
-  res.status(200).json(updatedPost);
 };
 
 const imagekit = new ImageKit({

@@ -15,7 +15,7 @@ router.get("/upload-auth", uploadAuth);
 
 router.get("/", getPosts);
 router.get("/:slug", increaseVisit, getPost);
-router.post("/", createPost);
+router.post("/create", createPost);
 router.delete("/:id", deletePost);
 router.patch("/feature", featurePost);
 

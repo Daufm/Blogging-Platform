@@ -1,7 +1,7 @@
 import axios from "axios";
 import Comment from "./Comment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth, useUser } from "@clerk/clerk-react";
+
 import { toast } from "react-toastify";
 
 const fetchComments = async (postId) => {
@@ -12,8 +12,8 @@ const fetchComments = async (postId) => {
 };
 
 const Comments = ({ postId }) => {
-  const { user } = useUser();
-  const { getToken } = useAuth();
+const token = localStorage.getItem("token");
+const user = token ? JSON.parse(atob(token.split(".")[1])).user : null; // Decode the token to get user info
 
   const { isPending, error, data } = useQuery({
     queryKey: ["comments", postId],
@@ -24,7 +24,9 @@ const Comments = ({ postId }) => {
 
   const mutation = useMutation({
     mutationFn: async (newComment) => {
-      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
       return axios.post(
         `${import.meta.env.VITE_API_URL}/comments/${postId}`,
         newComment,
@@ -82,8 +84,8 @@ const Comments = ({ postId }) => {
                 desc: `${mutation.variables.desc} (Sending...)`,
                 createdAt: new Date(),
                 user: {
-                  img: user.imageUrl,
-                  username: user.username,
+                  img: user?.imageUrl || "", // Fallback to an empty string if user or imageUrl is undefined
+                  username: user?.username || "Anonymous", // Fallback to "Anonymous" if username is undefined
                 },
               }}
             />

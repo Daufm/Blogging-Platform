@@ -24,7 +24,7 @@ const LoginPage = () => {
         //  the API returns a token 
         const {token} = response.data;
         localStorage.setItem("token", token);
-
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         const user = response.data.user;
         console.log(user);
 

@@ -45,7 +45,7 @@ const PostList = () => {
 
   return (
     <div>
-    {/* {allPosts.length === 0 ? (
+     {allPosts.length === 0 ? (
       <p>No posts available.</p>
     ) : (
       <InfiniteScroll
@@ -65,7 +65,7 @@ const PostList = () => {
             <PostListItem key={post._id} post={post} />
           ))}
       </InfiniteScroll>
-    )} */}
+    )} 
   </div>
   );
 };

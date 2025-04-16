@@ -12,5 +12,5 @@ router.post("/login", Login)
 router.get("/authors/:username", getAuthor);
 router.patch("/authors/update", updateAuthor);
 router.get("/profile/:username", getUserProfile);
-router.patch('/profile1/update', authenticate, updateProfile);
+router.patch('/profile/update', authenticate, updateProfile);
 export default router 

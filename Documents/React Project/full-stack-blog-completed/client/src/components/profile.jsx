@@ -16,7 +16,7 @@ const fetchUserData = async (username) => {
 };
 
 const updateUserProfile = async (updatedData) => {
-  const res = await axios.patch(`${import.meta.env.VITE_API_URL}/users/profile1/update`, updatedData, {
+  const res = await axios.patch(`${import.meta.env.VITE_API_URL}/users/profile/update`, updatedData, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },

@@ -113,7 +113,7 @@ const UserProfile = () => {
             ></textarea>
             <label className="block text-sm mb-1">Profile Image</label>
             <Upload type="image" setProgress={setProgress} setData={setImg}>
-              <button className="mt-2 w-full bg-gray-100 p-2 rounded-lg text-sm">Upload Image</button>
+              <button type="button" className="mt-2 w-full bg-gray-100 p-2 rounded-lg text-sm">Upload Image</button>
             </Upload>
             <div className="mt-4 flex justify-between">
               <button

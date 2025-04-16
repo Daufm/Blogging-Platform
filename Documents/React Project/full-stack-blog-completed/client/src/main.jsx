@@ -17,7 +17,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-quill-new/dist/quill.snow.css";
-
+import {ProtectedRoute} from "./routes/ProtectedRoute.jsx";
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
@@ -38,7 +38,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/profile/:username",
-        element: <ProfilePage />,
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute> ),
       },
       {
         path: "/:slug",

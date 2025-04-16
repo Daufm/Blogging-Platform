@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Post from "../models/post.model.js";
 import 'dotenv/config';
 import TempOTP from "../models/TempOTP.js";
 import nodemailer from "nodemailer";
@@ -7,6 +8,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
 import 'dotenv/config';
+
 
 
 // Request OTP Controller
@@ -62,7 +64,7 @@ export const requestOtp = async (req, res) => {
 
 // Verify OTP and register user
 export const verifyAndRegister = async (req, res) => {
-  const { username, email, password ,otp,role} = req.body;
+  const { username, email, password ,otp,role,sex,img} = req.body;
   
   try {
     // Find the temporary OTP entry
@@ -88,9 +90,12 @@ console.log("i pass here");
     const user = new User({
       username,
       email,
+      img,
+      bio: "",
       password: hashedPassword,
       savedPosts: [],
-      role: 'Subscriber',
+      role: role || "User", 
+      sex,// Default to "User" if no role is provided
       isVerified: true // User is pre-verified since OTP is confirmed
     });
     
@@ -139,7 +144,7 @@ export const Login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" } // Token expires in 1 hour
+      { expiresIn: "1d" } // Token expires in 1 hour
     );
 
     res.status(200).json({
@@ -195,3 +200,95 @@ export const savePost = async (req, res) => {
 
   res.status(200).json(isSaved ? "Post unsaved" : "Post saved");
 };
+
+
+
+export const getAuthor = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // Find the author by username
+    const author = await User.findOne({ username }).select("username img bio role");
+    if (!author) {
+      return res.status(404).json({ message: "Author not found" });
+    }
+
+    // Find the posts by the author
+    const posts = await Post.find({ user: author._id }).select("title desc slug img createdAt category");
+
+    res.status(200).json({ author, posts });
+  } catch (error) {
+    console.error("Error fetching author data:", error);
+    res.status(500).json({ message: "Failed to fetch author data" });
+  }
+};
+
+
+
+export const getUserProfile = async (req, res)=>{
+  try {
+    const { username } = req.params;
+
+    // Find the user by username
+    const user = await User.findOne({ username }).select("username img bio role");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find posts created by the user
+    const posts = await Post.find({ user: user._id }).select("title desc slug img createdAt");
+
+    res.status(200).json({ user, posts });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: "Failed to fetch user profile" });
+  }
+}
+
+// This controller handles updating the user's profile
+export const updateProfile = async (req, res) => {
+  try {
+    
+    console.log("REQ.BODY:", req.body);         // 🔍 log bio and img
+    console.log("USER ID:", req.user?.id);       // 🔍 confirm token extraction
+
+    const { bio, img } = req.body;
+    const userId = req.user.id;
+
+    const updatedData = {};
+    if (bio) updatedData.bio = bio;
+    if (img) updatedData.img = img;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Failed to update profile", error: error.message });
+  }
+};
+
+
+
+
+
+export const updateAuthor = async (req, res)=>{
+  try {
+    const { bio } = req.body;
+    const img = req.file?.path; // Handle file upload if applicable
+    const userId = req.user.id; // Extract user ID from the token
+
+    const updatedData = {};
+    if (bio) updatedData.bio = bio;
+    if (img) updatedData.img = img;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+}

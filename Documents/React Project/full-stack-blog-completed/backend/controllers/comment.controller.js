@@ -10,15 +10,15 @@ export const getPostComments = async (req, res) => {
 };
 
 export const addComment = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const token = req.headers.authorization?.split(" ")[1];
   const postId = req.params.postId;
 
-  if (!clerkUserId) {
+  if (!token) {
     return res.status(401).json("Not authenticated!");
   }
-
+ 
   const user = await User.findOne({ clerkUserId });
-
+ 
   const newComment = new Comment({
     ...req.body,
     user: user._id,

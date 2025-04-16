@@ -21,19 +21,27 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    role:{
+    role: {
       type: String,
-      enum: ["Subscriber", "Admin"],
-      default: "Subscriber",
+      enum: ["user", "author", "Admin"],
+      default: "User",
     },
     img: {
       type: String,
+    },
+    bio: {
+      type: String,
+      default: "", // optional, but avoids `undefined`
+    },
+    sex:{
+    type: String,
+    enum: ["male", "female"],
+    default: ""
     },
     savedPosts: {
       type: [String],
       default: [],
     },
-   
   },
   { timestamps: true }
 );

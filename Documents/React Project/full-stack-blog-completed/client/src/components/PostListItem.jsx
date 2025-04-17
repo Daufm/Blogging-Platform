@@ -19,7 +19,7 @@ const PostListItem = ({ post }) => {
       {/* image */}
       {post.img && (
         <div className="md:hidden xl:block xl:w-1/3">
-          <Image src={post.img} className="rounded-2xl object-cover" w="500" h="300" />
+          <Image src={post.img} className="rounded-2xl object-cover" w="300" h="300" />
         </div>
       )}
       {/* details */}

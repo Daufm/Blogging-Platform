@@ -24,13 +24,13 @@ const AuthorPage = () => {
     <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-10">
       {/* Author Header */}
       <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 bg-white p-6 rounded-2xl shadow-md border">
-        {data.author.img && (
+        
           <Image
-            src={data.author.img}
+            src={data.author.img || "/default-avatar.png"}
             alt={data.author.username}
             className="w-28 h-28 rounded-full object-cover border-4 border-blue-100 shadow"
           />
-        )}
+        
         <div className="text-center md:text-left">
           <h1 className="text-3xl font-bold text-gray-900">{data.author.username}</h1>
           <p className="mt-2 text-gray-600 text-sm">{data.author.bio || "No bio available."}</p>

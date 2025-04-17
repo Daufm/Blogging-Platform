@@ -33,7 +33,8 @@ const FeaturedPosts = () => {
         {posts[0].img && <Image
           src={posts[0].img}
           className="rounded-3xl object-cover"
-          w="895"
+          w="300"
+          h="300"
         />}
         {/* details */}
         <div className="flex items-center gap-4">

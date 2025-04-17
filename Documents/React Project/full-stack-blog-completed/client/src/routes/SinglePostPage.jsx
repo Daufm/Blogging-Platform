@@ -34,7 +34,11 @@ const SinglePostPage = () => {
           </h1>
           <div className="flex items-center gap-2 text-gray-400 text-sm">
             <span>Written by</span>
-            <Link className="text-blue-800">{data.user.username}</Link>
+            {data.user ? (
+           <Link className="text-blue-800">{data.user.username}</Link>
+              ) : (
+                <span className="text-gray-500">Unknown Author</span>
+              )}
             <span>on</span>
             <Link className="text-blue-800">{data.category}</Link>
             <span>{format(data.createdAt)}</span>
@@ -43,7 +47,7 @@ const SinglePostPage = () => {
         </div>
         {data.img && (
           <div className="hidden lg:block w-2/5">
-            <Image src={data.img} w="600" className="rounded-2xl" />
+            <Image src={data.img} w="300" h="300" className="rounded-2xl" />
           </div>
         )}
       </div>
@@ -59,7 +63,7 @@ const SinglePostPage = () => {
           <h1 className="mb-4 text-sm font-medium">Author</h1>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-8">
-              {data.user.img && (
+              {data.user?.img && (
                 <Image
                   src={data.user.img}
                   className="w-12 h-12 rounded-full object-cover"
@@ -67,10 +71,15 @@ const SinglePostPage = () => {
                   h="48"
                 />
               )}
-              <Link className="text-blue-800">{data.user.username}</Link>
+              
+              {data.user ? (
+                <Link className="text-blue-800">{data.user.username}</Link>
+              ) : (
+                <span className="text-gray-500">Unknown Author</span>
+              )}
             </div>
             <p className="text-sm text-gray-500">
-              Lorem ipsum dolor sit amet consectetur
+              Socials
             </p>
             <div className="flex gap-2">
               <Link>
@@ -105,7 +114,7 @@ const SinglePostPage = () => {
           <Search />
         </div>
       </div>
-      <Comments postId={data._id}/>
+      <Comments postId={data?._id}/>
     </div>
   );
 };

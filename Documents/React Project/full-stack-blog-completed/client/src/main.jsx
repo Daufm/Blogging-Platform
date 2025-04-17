@@ -18,6 +18,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-quill-new/dist/quill.snow.css";
 import {ProtectedRoute} from "./routes/ProtectedRoute.jsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+
+
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
@@ -45,7 +49,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/:slug",
-        element: <SinglePostPage />,
+        element: (
+          <ProtectedRoute>
+          <SinglePostPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/write",
@@ -64,18 +72,24 @@ const router = createBrowserRouter([
         element: <VerifyOtpPage />,
       },
       {
-        path: "/adminBored",
+        path: "/admin_dashboard",
         element: <AdminDashboard/>,
       }
     ],
   },
 ]);
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
+  console.error("Google Client ID is not defined in the environment variables.");
+}
 createRoot(document.getElementById("root")).render(
   <StrictMode>
+  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <ToastContainer position="bottom-right" />
     </QueryClientProvider>
-  </StrictMode>
+  </GoogleOAuthProvider>
+</StrictMode>
 );

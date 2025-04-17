@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import Upload from "../components/Upload.jsx";
 import { toast } from "react-toastify";
 
+
+
 const fetchUserData = async (username) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile/${username}`);
   return res.data;
@@ -30,6 +32,19 @@ const UserProfile = () => {
   const loggedInUser = JSON.parse(localStorage.getItem("user"));
   const isOwner = loggedInUser?.username === username;
 
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Redirect to login page
+    navigate("/login");
+  };
+
+
+
   const { isLoading, error, data } = useQuery({
     queryKey: ["user", username],
     queryFn: () => fetchUserData(username),
@@ -40,6 +55,7 @@ const UserProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["user", username]);
       setIsEditing(false);
+      toast("Profile updated successfully!");
     },
     onError: (error) => {
       toast(error.response?.data?.message || "Failed to update profile.");
@@ -69,6 +85,13 @@ const UserProfile = () => {
     mutation.mutate(updatedData);
   };
 
+const handleDashbored = ()=>{
+  navigate("/admin_dashboard")
+  toast("Welcome to Admin DashBored!")
+}
+
+
+
   if (isLoading) return <div className="text-center py-12 text-gray-600">Loading...</div>;
   if (error) return <div className="text-red-500 text-center py-12">Error: {error.message}</div>;
 
@@ -89,13 +112,29 @@ const UserProfile = () => {
           </span>
         </div>
         {isOwner && (
+          <div className="absolute top-4 right-4 flex gap-2">
           <button
             onClick={handleEditProfile}
-            className="absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-sm"
+            className="  bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-sm"
           >
             Edit
           </button>
-        )}
+           <button
+           onClick={handleLogout}
+           className=" bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full shadow-sm"
+         >
+           Logout
+         </button>
+
+        {data.user.role =="admin" && (
+            <button
+                onClick={handleDashbored}
+                className=" bg-blue-700 hover:bg-blue-400 text-white hover:text-black px-4 py-2 rounded-full shadow-sm"
+              >
+                Admin DashBored
+           </button>)}
+      </div>
+        ) }
       </div>
 
       {/* Edit Profile Modal */}

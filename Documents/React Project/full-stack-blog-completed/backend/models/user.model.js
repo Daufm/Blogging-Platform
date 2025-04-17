@@ -15,7 +15,9 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.isGoogleUser; // Password is required only if the user is not a Google user
+      },
     },
     isVerified: {
       type: Boolean,
@@ -24,23 +26,27 @@ const userSchema = new Schema(
     role: {
       type: String,
       enum: ["user", "author", "Admin"],
-      default: "User",
+      default: "user",
     },
     img: {
       type: String,
     },
     bio: {
       type: String,
-      default: "", // optional, but avoids `undefined`
+      default: "", // Optional, avoids `undefined`
     },
-    sex:{
-    type: String,
-    enum: ["male", "female"],
-    default: ""
+    sex: {
+      type: String,
+      enum: ["male", "female", "other"], // Added "other" as a valid option
+      default: "other", // Default value is now valid
     },
     savedPosts: {
       type: [String],
       default: [],
+    },
+    isGoogleUser: {
+      type: Boolean,
+      default: false, // Tracks if the user is created via Google login
     },
   },
   { timestamps: true }

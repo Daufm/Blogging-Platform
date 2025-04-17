@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
 import 'dotenv/config';
-
+import { OAuth2Client } from "google-auth-library";
 
 
 // Request OTP Controller
@@ -164,27 +164,87 @@ export const Login = async (req, res) => {
 };
 
 
-export const getUserSavedPosts = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+/// This controller handles user Google Login
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-  if (!clerkUserId) {
+export const GoogleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        username: name,
+        email,
+        img: picture,
+        bio: "",
+        password: null,
+        savedPosts: [],
+        role: "user",
+        isVerified: true,
+        isGoogleUser: true,
+      });
+    }
+
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      jwtToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+  } catch (err) {
+    console.error("Google login error:", err);
+    res.status(401).json({ message: "Authentication failed" });
+  }
+};
+
+
+export const getUserSavedPosts = async (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+  if (!decodedToken) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const user = await User.findOne({ clerkUserId });
+  const user = await User.findOne({ _id: decodedToken.id });
 
   res.status(200).json(user.savedPosts);
 };
 
+
+
 export const savePost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
   const postId = req.body.postId;
 
-  if (!clerkUserId) {
+  if (!decodedToken) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const user = await User.findOne({ clerkUserId });
+  const user = await User.findOne({ _id: decodedToken.id });
 
   const isSaved = user.savedPosts.some((p) => p === postId);
 

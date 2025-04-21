@@ -155,6 +155,7 @@ export const Login = async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        img: user.img,
       },
     });
   } catch (error) {
@@ -220,17 +221,30 @@ export const GoogleLogin = async (req, res) => {
 
 
 export const getUserSavedPosts = async (req, res) => {
-  const token = req.headers.authorization.split(" ")[1];
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json("Not authenticated!");
+    }
 
-  if (!decodedToken) {
-    return res.status(401).json("Not authenticated!");
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decodedToken) {
+      return res.status(401).json("Invalid token");
+    }
+
+    const user = await User.findById(decodedToken.id).populate("savedPosts");
+
+    if (!user) {
+      return res.status(404).json("User not found");
+    }
+
+    res.status(200).json(user.savedPosts);
+  } catch (error) {
+    console.error("Error getting saved posts:", error);
+    res.status(500).json("Something went wrong");
   }
-
-  const user = await User.findOne({ _id: decodedToken.id });
-
-  res.status(200).json(user.savedPosts);
 };
+
 
 
 

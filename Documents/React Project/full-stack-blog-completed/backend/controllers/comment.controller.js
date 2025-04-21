@@ -10,51 +10,50 @@ export const getPostComments = async (req, res) => {
 };
 
 export const addComment = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  const postId = req.params.postId;
+  try {
+    const userId = req.user.id;
+    const postId = req.params.postId;
 
-  if (!token) {
-    return res.status(401).json("Not authenticated!");
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json("User not found.");
+    }
+
+    const newComment = new Comment({
+      ...req.body,
+      user: user._id,
+      post: postId,
+    });
+
+    const savedComment = await newComment.save();
+
+    res.status(201).json(savedComment);
+  } catch (error) {
+    console.error("Error while adding comment:", error.message);
+    res.status(500).json("Something went wrong.");
   }
- 
-  const user = await User.findOne({ clerkUserId });
- 
-  const newComment = new Comment({
-    ...req.body,
-    user: user._id,
-    post: postId,
-  });
-
-  const savedComment = await newComment.save();
-
-  res.status(201).json(savedComment);
 };
 
+
 export const deleteComment = async (req, res) => {
-  const clerkUserId = req.auth.userId;
-  const id = req.params.id;
+  const userId = req.user.id;
+  const commentId = req.params.id;
 
-  if (!clerkUserId) {
-    return res.status(401).json("Not authenticated!");
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json("User not found.");
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
-
-  if (role === "admin") {
-    await Comment.findByIdAndDelete(req.params.id);
-    return res.status(200).json("Comment has been deleted");
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    return res.status(404).json("Comment not found.");
   }
 
-  const user = User.findOne({ clerkUserId });
-
-  const deletedComment = await Comment.findOneAndDelete({
-    _id: id,
-    user: user._id,
-  });
-
-  if (!deletedComment) {
+  // Optional: check for admin role
+  if (user.role === "admin" || comment.user.toString() === user._id.toString()) {
+    await Comment.findByIdAndDelete(commentId);
+    return res.status(200).json("Comment deleted");
+  } else {
     return res.status(403).json("You can delete only your comment!");
   }
-
-  res.status(200).json("Comment deleted");
 };

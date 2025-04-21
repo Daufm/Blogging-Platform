@@ -1,11 +1,13 @@
 import axios from "axios";
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useState , useContext } from "react";
+import { Link ,useNavigate} from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-
+import { AuthContext } from "../utils/AuthContext";
 
 const LoginPage = () => {
+  // useContext to get the login function from AuthContext
+  const { login } = useContext(AuthContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,10 +25,8 @@ const LoginPage = () => {
       const response = await axios.post("http://localhost:3000/users/login", {email, password})
       if (response.status === 200) {
         //  the API returns a token 
-        const {token} = response.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        const user = response.data.user;
+        const {token, user} = response.data;
+        login(user, token);
         console.log(user);
 
         //redirect to home page

@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+    <div className="min-h-screen flex bg-gray-50 text-gray-900">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
@@ -32,25 +32,23 @@ const AdminDashboard = () => {
 const Sidebar = () => {
   const links = [
     { path: "/", label: "Dashboard" },
-    { path: "/posts", label: "Posts" },
-    { path: "/create-post", label: "Create Post" },
+    { path: "/home", label: "Posts" },
+    { path: "/write", label: "Create Post" },
     { path: "/categories", label: "Categories" },
-    { path: "/comments", label: "Comments" },
     { path: "/analytics", label: "Analytics" },
     { path: "/users", label: "Users" },
-    { path: "/settings", label: "Settings" },
   ];
 
   return (
-    <aside className="w-64 bg-gray-100 text-blue-700 dark:bg-gray-300 border-r dark:border-gray-700 p-5">
+    <aside className="w-64 bg-white border-r border-gray-200 shadow-md p-6">
       <nav className="space-y-3">
         {links.map((link) => (
           <NavLink
             key={link.path}
             to={link.path}
             className={({ isActive }) =>
-              `block px-4 py-2 rounded-lg transition ${
-                isActive ? "bg-blue-600 text-white" : "hover:bg-gray-200 dark:hover:bg-gray-700"
+              `block px-4 py-2 rounded-md text-sm font-medium transition ${
+                isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
               }`
             }
           >
@@ -63,8 +61,8 @@ const Sidebar = () => {
 };
 
 const Header = ({ toggleDarkMode, darkMode }) => (
-  <header className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm p-4 flex justify-between items-center">
-    <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+  <header className="bg-white border-b border-gray-200 p-5 flex justify-between items-center shadow-sm">
+    <h1 className="text-2xl font-bold text-blue-700">Admin Dashboard</h1>
     <button
       onClick={toggleDarkMode}
       className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
@@ -75,7 +73,7 @@ const Header = ({ toggleDarkMode, darkMode }) => (
 );
 
 const MainContent = () => (
-  <main className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900">
+  <main className="flex-1 overflow-y-auto p-6">
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/posts" element={<Posts />} />
@@ -91,8 +89,8 @@ const MainContent = () => (
 
 const Dashboard = () => (
   <section>
-    <h2 className="text-xl font-semibold mb-2">Dashboard</h2>
-    <p className="text-gray-600 dark:text-gray-300">Welcome to the admin dashboard.</p>
+    <h2 className="text-xl font-semibold mb-2">Dashboard Overview</h2>
+    <p className="text-gray-600">Welcome to your updated admin panel.</p>
   </section>
 );
 
@@ -106,10 +104,11 @@ const Posts = () => {
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">Posts</h2>
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {posts.map((post) => (
-          <li key={post.id} className="p-3 border-b dark:border-gray-700">
-            <span className="font-medium">{post.title}</span> - {post.status}
+          <li key={post.id} className="p-4 bg-white rounded-md shadow border border-gray-100">
+            <h3 className="font-medium text-lg">{post.title}</h3>
+            <p className="text-sm text-gray-500">Status: {post.status}</p>
           </li>
         ))}
       </ul>
@@ -134,20 +133,20 @@ const PostEditor = () => {
 
   return (
     <section>
-      <h2 className="text-xl font-semibold mb-4">Create Post</h2>
+      <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
-          placeholder="Title"
+          placeholder="Post Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-700"
+          className="w-full p-3 border border-gray-300 rounded"
         />
         <textarea
-          placeholder="Content"
+          placeholder="Post Content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-700"
+          className="w-full p-3 border border-gray-300 rounded"
         ></textarea>
         <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
           Submit
@@ -169,7 +168,9 @@ const Categories = () => {
       <h2 className="text-xl font-semibold mb-4">Categories</h2>
       <ul className="space-y-2">
         {categories.map((category) => (
-          <li key={category.id} className="p-2 border-b dark:border-gray-700">{category.name}</li>
+          <li key={category.id} className="p-3 bg-white rounded shadow border border-gray-100">
+            {category.name}
+          </li>
         ))}
       </ul>
     </section>
@@ -188,8 +189,8 @@ const Comments = () => {
       <h2 className="text-xl font-semibold mb-4">Comments</h2>
       <ul className="space-y-2">
         {comments.map((comment) => (
-          <li key={comment.id} className="p-3 border-b dark:border-gray-700">
-            {comment.content} - <span className="text-sm text-gray-500">{comment.status}</span>
+          <li key={comment.id} className="p-3 bg-white rounded shadow border border-gray-100">
+            {comment.content} <span className="text-sm text-gray-500">({comment.status})</span>
           </li>
         ))}
       </ul>
@@ -200,7 +201,7 @@ const Comments = () => {
 const Analytics = () => (
   <section>
     <h2 className="text-xl font-semibold mb-4">Analytics</h2>
-    <p className="text-gray-600 dark:text-gray-300">Analytics data coming soon.</p>
+    <p className="text-gray-600">Analytics data will be displayed here.</p>
   </section>
 );
 
@@ -216,8 +217,8 @@ const Users = () => {
       <h2 className="text-xl font-semibold mb-4">Users</h2>
       <ul className="space-y-2">
         {users.map((user) => (
-          <li key={user.id} className="p-2 border-b dark:border-gray-700">
-            {user.username} - <span className="text-sm text-gray-500">{user.email}</span>
+          <li key={user.id} className="p-3 bg-white rounded shadow border border-gray-100">
+            <strong>{user.username}</strong> <span className="text-sm text-gray-500">({user.email})</span>
           </li>
         ))}
       </ul>
@@ -228,7 +229,7 @@ const Users = () => {
 const Settings = () => (
   <section>
     <h2 className="text-xl font-semibold mb-4">Settings</h2>
-    <p className="text-gray-600 dark:text-gray-300">Settings options will be available here soon.</p>
+    <p className="text-gray-600">Manage your application settings here.</p>
   </section>
 );
 

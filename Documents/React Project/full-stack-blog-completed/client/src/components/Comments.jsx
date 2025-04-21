@@ -6,7 +6,13 @@ import { toast } from "react-toastify";
 
 const fetchComments = async (postId) => {
   const res = await axios.get(
-    `${import.meta.env.VITE_API_URL}/comments/${postId}`
+    `${import.meta.env.VITE_API_URL}/comments/${postId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+
+    }
   );
   return res.data;
 };

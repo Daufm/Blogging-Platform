@@ -5,13 +5,10 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Comment = ({ comment, postId }) => {
-  // const { user } = useUser();
-  // const { getToken } = useAuth();
   
-  // const role = user?.publicMetadata?.role;
   const token = localStorage.getItem("token");
   const user = token ? JSON.parse(atob(token.split(".")[1])).user : null; // Decode the token to get user info
-  const role = user?.publicMetadata?.role;
+  const role = user?.role;
   
   const queryClient = useQueryClient();
 

@@ -19,65 +19,48 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-quill-new/dist/quill.snow.css";
 import {ProtectedRoute} from "./routes/ProtectedRoute.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-
+import { AuthProvider } from "./utils/AuthContext.jsx";
 
 
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {
-    element: <MainLayout />,
+    element: <MainLayout />, // includes Navbar
     children: [
-      {
-        path: "/",
-        element: <Homepage />,
+      { path: "/", element: <Homepage /> },
+      { path: "/posts", element: <PostListPage /> },
+      { path: "/write", element: <Write /> },
+      { path: "/authors/:username", element: <AuthorPage /> },
+      { 
+        path: "/profile/:username", 
+        element: <ProtectedRoute><ProfilePage /></ProtectedRoute> 
       },
-      {
-        path: "/posts",
-        element: <PostListPage />,
+      { 
+        path: "/:slug", 
+        element: <ProtectedRoute><SinglePostPage /></ProtectedRoute> 
       },
-      {
-        path: "/authors/:username",
-        element: <AuthorPage />, 
-      },
-      {
-        path: "/profile/:username",
-        element: (
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute> ),
-      },
-      {
-        path: "/:slug",
-        element: (
-          <ProtectedRoute>
-          <SinglePostPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/write",
-        element: <Write />,
-      },
-      {
-        path: "/login",
-        element: <LoginPage />,
-      },
-      {
-        path: "/register",
-        element: <RegisterPage />,
-      },
-      {
-        path: "/verify-otp",
-        element: <VerifyOtpPage />,
-      },
-      {
-        path: "/admin_dashboard",
-        element: <AdminDashboard/>,
-      }
     ],
   },
+  // 👇 outside MainLayout → no Navbar
+  {
+    path: "/admin_dashboard",
+    element: <AdminDashboard />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+  {
+    path: "/verify-otp",
+    element: <VerifyOtpPage />,
+  },
 ]);
+
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 if (!GOOGLE_CLIENT_ID) {
@@ -86,10 +69,12 @@ if (!GOOGLE_CLIENT_ID) {
 createRoot(document.getElementById("root")).render(
   <StrictMode>
   <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+   <AuthProvider>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <ToastContainer position="bottom-right" />
     </QueryClientProvider>
+    </AuthProvider>
   </GoogleOAuthProvider>
 </StrictMode>
 );

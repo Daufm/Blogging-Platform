@@ -1,6 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
+//import Report from "./report.jsx";
+
+
+const token = localStorage.getItem("token"); // Get the token from local storage
+
+const handleDeletePost = async (postId) => {
+  if (!confirm("Are you sure you want to delete this post?")) return;
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      toast("Post deleted successfully");
+      // Optionally refresh reports
+    } else {
+      toast("Failed to delete post");
+    }
+  } catch (err) {
+    console.error("Delete post error:", err);
+  }
+};
+
+const handleDismissReport = async (reportId) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/posts/reports/${reportId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      toast("Report dismissed");
+    } else {
+      toast("Failed to dismiss report");
+    }
+  } catch (err) {
+    console.error("Dismiss error:", err);
+  }
+};
+
+
+
+
+
 
 const AdminDashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -31,10 +80,10 @@ const AdminDashboard = () => {
 
 const Sidebar = () => {
   const links = [
-    { path: "/", label: "Dashboard" },
-    { path: "/home", label: "Posts" },
+    { path: "/admin_dashboard", label: "Dashboard" },
+    { path: "/", label: "Posts" },
     { path: "/write", label: "Create Post" },
-    { path: "/categories", label: "Categories" },
+    { path: "/admin/reports", label: "Reports" },
     { path: "/analytics", label: "Analytics" },
     { path: "/users", label: "Users" },
   ];
@@ -76,9 +125,7 @@ const MainContent = () => (
   <main className="flex-1 overflow-y-auto p-6">
     <Routes>
       <Route path="/" element={<Dashboard />} />
-      <Route path="/posts" element={<Posts />} />
-      <Route path="/create-post" element={<PostEditor />} />
-      <Route path="/categories" element={<Categories />} />
+      <Route path="/reports" element={<Report/>} exact/>
       <Route path="/comments" element={<Comments />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/users" element={<Users />} />
@@ -94,88 +141,72 @@ const Dashboard = () => (
   </section>
 );
 
-const Posts = () => {
-  const [posts, setPosts] = useState([]);
+const Report = () => {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("/api/posts").then((res) => setPosts(res.data)).catch(console.error);
+    const fetchReports = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/posts/get/reports`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Make sure this token belongs to an admin
+          },
+        });
+        const data = await res.json();
+        console.log("Fetched report data:", data); 
+        setReports(data?.reports);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch reports", error);
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   return (
     <section>
-      <h2 className="text-xl font-semibold mb-4">Posts</h2>
-      <ul className="space-y-3">
-        {posts.map((post) => (
-          <li key={post.id} className="p-4 bg-white rounded-md shadow border border-gray-100">
-            <h3 className="font-medium text-lg">{post.title}</h3>
-            <p className="text-sm text-gray-500">Status: {post.status}</p>
-          </li>
-        ))}
-      </ul>
-      <NavLink to="/create-post" className="inline-block mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-        Create New Post
-      </NavLink>
+      <h2 className="text-xl font-semibold mb-4">Reported Posts</h2>
+
+      {loading ? (
+        <p className="text-gray-600">Loading...</p>
+      ) : (reports?.length ?? 0) === 0 ? (  
+        <p className="text-gray-600">No reports found.</p>
+      ) : (
+        <div className="space-y-4">
+          {reports.map((report) => (
+           <div key={report._id} className="p-4 border rounded shadow">
+           <p><strong>Post Title:</strong> {report.postId?.title}</p>
+           <p><strong>Content:</strong> {report.postId?.content?.substring(0, 100)}...</p>
+           <p><strong>Reason:</strong> {report.reason}</p>
+           <p><strong>Reported By:</strong> {report.reportedBy?.username || report.reportedBy?.email}</p>
+           <p className="text-sm text-gray-500">{new Date(report.reportedAt).toLocaleString()}</p>
+           <div className="flex space-x-2 mt-2">
+           <button
+              onClick={() => handleDeletePost(report.postId._id)}
+              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+            >
+              Delete Post
+            </button>
+
+            <button
+              onClick={() => handleDismissReport(report._id)}
+              className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400"
+            >
+              Dismiss Report
+           </button>
+          </div>
+         
+         </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
 
-const PostEditor = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    axios.post("/api/posts", { title, content })
-      .then(() => navigate("/posts"))
-      .catch(console.error);
-  };
-
-  return (
-    <section>
-      <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Post Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded"
-        />
-        <textarea
-          placeholder="Post Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded"
-        ></textarea>
-        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-          Submit
-        </button>
-      </form>
-    </section>
-  );
-};
-
-const Categories = () => {
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    axios.get("/api/categories").then((res) => setCategories(res.data)).catch(console.error);
-  }, []);
-
-  return (
-    <section>
-      <h2 className="text-xl font-semibold mb-4">Categories</h2>
-      <ul className="space-y-2">
-        {categories.map((category) => (
-          <li key={category.id} className="p-3 bg-white rounded shadow border border-gray-100">
-            {category.name}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-};
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
@@ -204,6 +235,8 @@ const Analytics = () => (
     <p className="text-gray-600">Analytics data will be displayed here.</p>
   </section>
 );
+
+
 
 const Users = () => {
   const [users, setUsers] = useState([]);

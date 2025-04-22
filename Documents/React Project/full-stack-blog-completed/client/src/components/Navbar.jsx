@@ -108,7 +108,7 @@ const Navbar = () => {
               whileTap={{ scale: 0.9 }}
             >
               <Image 
-                src="blog.png" 
+                src="logo.png" 
                 alt="BlogSphere Logo" 
                 w={40} 
                 h={40} 

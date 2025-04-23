@@ -18,6 +18,7 @@
     "FuadBlog": "file:",
     "imagekitio-react": "^4.2.0",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.503.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-infinite-scroll-component": "^6.1.0",
@@ -25,6 +26,7 @@
     "react-quill-new": "^3.3.3",
     "react-router-dom": "^6.28.0",
     "react-toastify": "^10.0.6",
+    "recharts": "^2.15.3",
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {

@@ -11,6 +11,57 @@ import 'dotenv/config';
 import { OAuth2Client } from "google-auth-library";
 
 
+//Get all users
+export const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find()
+     .select("_id username email role isBanned ")
+     .sort({ createdAt: -1 });
+     
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+}
+
+// Delete user
+export const DeleteUser = async (req, res) => {
+ const { id } = req.params;
+ try {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "User deleted successfully" });
+ }
+ catch(error){
+    res.status(500).json({ message: "Failed to delete user" });
+  }
+ }
+
+// Ban user
+export const BanUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.isBanned = !user.isBanned; // Toggle ban status
+    await user.save();
+    
+    res.status(200).json({ message: `User ${user.isBanned ? 'banned' : 'unbanned'} successfully` });
+  } catch (error) {
+    console.error('Error banning/unbanning user', error);
+    res.status(500).json({ message: 'Failed to ban/unban user' });
+  }
+
+}
+
+
 // Request OTP Controller
 export const requestOtp = async (req, res) => {
   const { email } = req.body;

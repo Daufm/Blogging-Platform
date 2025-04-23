@@ -1,9 +1,13 @@
 import express from "express"
 import {authenticate} from '../middlewares/auth.js';
-import { getUserSavedPosts,getAuthor,GoogleLogin,updateAuthor,updateProfile,getUserProfile, savePost ,requestOtp,verifyAndRegister,Login} from "../controllers/user.controller.js"
+import { getUserSavedPosts,getAuthor,GoogleLogin,updateAuthor,
+    updateProfile,getUserProfile, savePost ,requestOtp,
+    verifyAndRegister,Login,getAllUser,DeleteUser,BanUser} from "../controllers/user.controller.js"
 
 const router = express.Router()
 
+router.delete("/:id/ban", authenticate, BanUser)
+router.delete("/:id", authenticate, DeleteUser)
 router.get("/saved", getUserSavedPosts)
 router.patch("/save", savePost)
 router.post("/sendOtp", requestOtp)
@@ -14,4 +18,5 @@ router.get("/authors/:username", getAuthor);
 router.patch("/authors/update", updateAuthor);
 router.get("/profile/:username", getUserProfile);
 router.patch('/profile/update', authenticate, updateProfile);
+router.get("/all", getAllUser);
 export default router 

@@ -23,6 +23,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isBanned:{
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       enum: ["user", "author", "Admin"],

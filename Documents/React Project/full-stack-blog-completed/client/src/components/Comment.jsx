@@ -1,20 +1,22 @@
 import { format } from "timeago.js";
 import Image from "./Image";
-import { useAuth, useUser } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axios from "axios";
 
 const Comment = ({ comment, postId }) => {
-  const { user } = useUser();
-  const { getToken } = useAuth();
-  const role = user?.publicMetadata?.role;
-
+  
+  const token = localStorage.getItem("token");
+  const user = token ? JSON.parse(atob(token.split(".")[1])).user : null; // Decode the token to get user info
+  const role = user?.role;
+  
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
       return axios.delete(
         `${import.meta.env.VITE_API_URL}/comments/${comment._id}`,
         {

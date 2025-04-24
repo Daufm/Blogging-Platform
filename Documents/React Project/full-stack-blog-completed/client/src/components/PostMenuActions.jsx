@@ -1,13 +1,17 @@
-import { useUser, useAuth } from "@clerk/clerk-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode"; 
 
 const PostMenuActions = ({ post }) => {
-  const { user } = useUser();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
+
+  // Retrieve and decode the JWT
+  const token = localStorage.getItem("token");
+  const user = token ? jwtDecode(token) : null; // Decode the token to get user info
+
+  const queryClient = useQueryClient();
 
   const {
     isPending,
@@ -16,7 +20,9 @@ const PostMenuActions = ({ post }) => {
   } = useQuery({
     queryKey: ["savedPosts"],
     queryFn: async () => {
-      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
       return axios.get(`${import.meta.env.VITE_API_URL}/users/saved`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -25,12 +31,14 @@ const PostMenuActions = ({ post }) => {
     },
   });
 
-  const isAdmin = user?.publicMetadata?.role === "admin" || false;
+  const isAdmin = user?.role === "admin"; // Check if the user is an admin
   const isSaved = savedPosts?.data?.some((p) => p === post._id) || false;
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
       return axios.delete(`${import.meta.env.VITE_API_URL}/posts/${post._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -42,15 +50,15 @@ const PostMenuActions = ({ post }) => {
       navigate("/");
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || "Failed to delete post.");
     },
   });
 
-  const queryClient = useQueryClient();
-
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
       return axios.patch(
         `${import.meta.env.VITE_API_URL}/users/save`,
         {
@@ -67,13 +75,15 @@ const PostMenuActions = ({ post }) => {
       queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || "Failed to save post.");
     },
   });
 
   const featureMutation = useMutation({
     mutationFn: async () => {
-      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
       return axios.patch(
         `${import.meta.env.VITE_API_URL}/posts/feature`,
         {
@@ -90,20 +100,29 @@ const PostMenuActions = ({ post }) => {
       queryClient.invalidateQueries({ queryKey: ["post", post.slug] });
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || "Failed to feature post.");
     },
   });
 
   const handleDelete = () => {
+    if (!token) {
+      toast.error("You need to log in to perform this action.");
+      return navigate("/login");
+    }
     deleteMutation.mutate();
   };
 
   const handleFeature = () => {
+    if (!token) {
+      toast.error("You need to log in to perform this action.");
+      return navigate("/login");
+    }
     featureMutation.mutate();
   };
 
   const handleSave = () => {
-    if (!user) {
+    if (!token) {
+      toast.error("You need to log in to save posts.");
       return navigate("/login");
     }
     saveMutation.mutate();
@@ -180,7 +199,7 @@ const PostMenuActions = ({ post }) => {
           )}
         </div>
       )}
-      {user && (post.user.username === user.username || isAdmin) && (
+      {user && (post.user?._id === user.id || isAdmin) && (
         <div
           className="flex items-center gap-2 py-2 text-sm cursor-pointer"
           onClick={handleDelete}

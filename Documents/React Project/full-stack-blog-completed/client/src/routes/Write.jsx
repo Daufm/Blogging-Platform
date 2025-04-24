@@ -1,4 +1,3 @@
-import { useAuth, useUser } from "@clerk/clerk-react";
 import "react-quill-new/dist/quill.snow.css";
 import ReactQuill from "react-quill-new";
 import { useMutation } from "@tanstack/react-query";
@@ -9,33 +8,50 @@ import { toast } from "react-toastify";
 import Upload from "../components/Upload";
 
 const Write = () => {
-    const { isLoaded, isSignedIn } = useUser();
     const [value, setValue] = useState("");
     const [cover, setCover] = useState("");
     const [img, setImg] = useState("");
     const [video, setVideo] = useState("");
     const [progress, setProgress] = useState(0);
     const navigate = useNavigate();
-    const { getToken } = useAuth();
+
+    // Check if the user is authenticated
+    const isAuthenticated = () => {
+        const token = localStorage.getItem("token");
+        return !!token; // Returns true if the token exists
+    };
+
+    // Redirect to login if the user is not authenticated
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            toast.error("You need to log in to create a post.");
+            navigate("/login");
+        }
+    }, [navigate]);
 
     useEffect(() => {
         if (img) {
-            setValue((prev) => prev + `<p><img src="${img.url}"/></p>`);
+            setValue((prev) => 
+                prev + `<p><img src="${img.url}" width="600" height="400" style="max-width: 100%; height: auto;"/></p>`
+            );
         }
     }, [img]);
-
+    
     useEffect(() => {
         if (video) {
-            setValue((prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`);
+            setValue((prev) => 
+                prev + `<p><iframe class="ql-video" src="${video.url}" width="800" height="450" style="max-width: 100%; height: auto;" frameborder="0" allowfullscreen></iframe></p>`
+            );
         }
     }, [video]);
 
     const mutation = useMutation({
         mutationFn: async (newPost) => {
-            const token = await getToken();
-            return axios.post(`${import.meta.env.VITE_API_URL}/posts`, newPost, {
+            const token = localStorage.getItem("token"); 
+            console.log("Token:", token);
+            return axios.post(`${import.meta.env.VITE_API_URL}/posts/create`, newPost, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`, 
                 },
             });
         },
@@ -44,30 +60,18 @@ const Write = () => {
             navigate(`/${res.data.slug}`);
         },
         onError: (error) => {
-          if (error.response) {
-            // The request was made, and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('Error data:', error.response.data);
-            console.error('Error status:', error.response.status);
-            console.error('Error headers:', error.response.headers);
-          } else if (error.request) {
-            // The request was made, but no response was received
-            console.error('No response received:', error.request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error('Error', error.message);
-          }
-          toast.error('Failed to create post. Please try again.');
+            if (error.response) {
+                console.error("Error data:", error.response.data);
+                console.error("Error status:", error.response.status);
+                console.error("Error headers:", error.response.headers);
+            } else if (error.request) {
+                console.error("No response received:", error.request);
+            } else {
+                console.error("Error", error.message);
+            }
+            toast.error("Failed to create post. Please try again.");
         },
     });
-
-    if (!isLoaded) {
-        return <div>Loading...</div>;
-    }
-
-    if (isLoaded && !isSignedIn) {
-        return <div>You should login!</div>;
-    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -91,7 +95,7 @@ const Write = () => {
             <h1 className="text-cl font-light">Create a New Post</h1>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1 mb-6">
                 <Upload type="image" setProgress={setProgress} setData={setCover}>
-                    <button className="w-max p-2 shadow-md rounded-xl text-sm text-gray-500 bg-white">
+                    <button type="button" className="w-max p-2 shadow-md rounded-xl text-sm text-gray-500 bg-white">
                         Add a cover image
                     </button>
                 </Upload>

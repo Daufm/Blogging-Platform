@@ -1,203 +1,236 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, NavLink, useNavigate } from 'react-router-dom';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  BarElement, 
-  ArcElement,
-  Title, 
-  Tooltip, 
-  Legend,
-  Filler
-} from 'chart.js';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  BarElement, 
-  ArcElement,
-  Title, 
-  Tooltip, 
-  Legend,
-  Filler
-);
-
-// Mock data for demo purposes
-const mockPosts = [
-  { id: 1, title: "10 React Best Practices in 2023", status: "published", author: "John Doe", date: "2023-05-20", views: 1245, comments: 23, category: "React" },
-  { id: 2, title: "Getting Started with Tailwind CSS", status: "published", author: "Jane Smith", date: "2023-05-18", views: 987, comments: 15, category: "CSS" },
-  { id: 3, title: "Introduction to GraphQL", status: "draft", author: "John Doe", date: "2023-05-15", views: 0, comments: 0, category: "APIs" },
-  { id: 4, title: "Building a Blog with Next.js", status: "scheduled", author: "Emily Johnson", date: "2023-05-22", views: 0, comments: 0, category: "Next.js" },
-  { id: 5, title: "JavaScript Fundamentals", status: "published", author: "Mike Williams", date: "2023-05-10", views: 2354, comments: 42, category: "JavaScript" },
-];
-
-const mockComments = [
-  { id: 1, postId: 1, author: "User123", content: "Great article, very helpful!", date: "2023-05-21", status: "approved" },
-  { id: 2, postId: 1, author: "WebDev", content: "I'd like to add that...", date: "2023-05-21", status: "pending" },
-  { id: 3, postId: 2, author: "CSSMaster", content: "Tailwind has been a game changer for me!", date: "2023-05-19", status: "approved" },
-  { id: 4, postId: 5, author: "NewbieDev", content: "This is exactly what I was looking for.", date: "2023-05-11", status: "approved" },
-  { id: 5, postId: 5, author: "Anonymous", content: "Check out my website at...", date: "2023-05-12", status: "spam" },
-];
-
-const mockCategories = [
-  { id: 1, name: "React", postCount: 15, slug: "react" },
-  { id: 2, name: "JavaScript", postCount: 24, slug: "javascript" },
-  { id: 3, name: "CSS", postCount: 8, slug: "css" },
-  { id: 4, name: "Next.js", postCount: 12, slug: "nextjs" },
-  { id: 5, name: "APIs", postCount: 6, slug: "apis" },
-];
-
-// Blog Admin App
-const BlogAdmin = () => {
+const AdminDashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Check for dark mode preference
-    if (localStorage.theme === 'dark' || 
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    }
+    const prefersDark = localStorage.theme === "dark" || window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDarkMode(prefersDark);
+    document.documentElement.classList.toggle("dark", prefersDark);
   }, []);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (darkMode) {
-      document.documentElement.classList.remove('dark');
-      localStorage.theme = 'light';
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.theme = 'dark';
-    }
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    document.documentElement.classList.toggle("dark", newMode);
+    localStorage.theme = newMode ? "dark" : "light";
   };
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <div className="flex h-screen overflow-hidden">
-          {/* Sidebar */}
-          <Sidebar darkMode={darkMode} />
-          
-          {/* Main Content */}
-          <div className="flex flex-col flex-1 w-full overflow-x-hidden">
-            {/* Header */}
-            <Header toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-            
-            {/* Main content area */}
-            <main className="h-full overflow-y-auto pt-4 pb-10">
-              <div className="container px-6 mx-auto">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/posts" element={<Posts />} />
-                  <Route path="/create-post" element={<PostEditor />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route path="/comments" element={<Comments />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
-              </div>
-            </main>
-          </div>
-        </div>
+    <div className="min-h-screen flex bg-gray-50 text-gray-900">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+        <MainContent />
       </div>
-    </Router>
+    </div>
   );
 };
 
-// Sidebar Component
-const Sidebar = ({ darkMode }) => {
+const Sidebar = () => {
+  const links = [
+    { path: "/", label: "Dashboard" },
+    { path: "/home", label: "Posts" },
+    { path: "/write", label: "Create Post" },
+    { path: "/categories", label: "Categories" },
+    { path: "/analytics", label: "Analytics" },
+    { path: "/users", label: "Users" },
+  ];
+
   return (
-    <aside className="z-20 hidden md:block flex-shrink-0 w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300">
-      <div className="flex flex-col h-full">
-        {/* Logo & Brand */}
-        <div className="py-6 px-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-center">
-            BLOG<span className="text-blue-600 dark:text-blue-400">ADMIN</span>
-          </h2>
-        </div>
-        
-        {/* Navigation */}
-        <div className="py-4 px-4 flex-1 overflow-y-auto">
-          <nav className="space-y-1">
-            <NavLink to="/" 
-              className={({ isActive }) => 
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`
-              }
-            >
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-              </svg>
-              <span>Dashboard</span>
-            </NavLink>
-            
-            <NavLink to="/posts" 
-              className={({ isActive }) => 
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`
-              }
-            >
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-              </svg>
-              <span>Posts</span>
-            </NavLink>
-            
-            <NavLink to="/create-post" 
-              className={({ isActive }) => 
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`
-              }
-            >
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span>New Post</span>
-            </NavLink>
-            
-            <NavLink to="/categories" 
-              className={({ isActive }) => 
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`
-              }
-            >
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-              </svg>
-              <span>Categories</span>
-            </NavLink>
-            
-            <NavLink to="/comments" 
-              className={({ isActive }) => 
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`
-              }
-            >
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8
+    <aside className="w-64 bg-white border-r border-gray-200 shadow-md p-6">
+      <nav className="space-y-3">
+        {links.map((link) => (
+          <NavLink
+            key={link.path}
+            to={link.path}
+            className={({ isActive }) =>
+              `block px-4 py-2 rounded-md text-sm font-medium transition ${
+                isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+              }`
+            }
+          >
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+    </aside>
+  );
+};
+
+const Header = ({ toggleDarkMode, darkMode }) => (
+  <header className="bg-white border-b border-gray-200 p-5 flex justify-between items-center shadow-sm">
+    <h1 className="text-2xl font-bold text-blue-700">Admin Dashboard</h1>
+    <button
+      onClick={toggleDarkMode}
+      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+    >
+      {darkMode ? "Light Mode" : "Dark Mode"}
+    </button>
+  </header>
+);
+
+const MainContent = () => (
+  <main className="flex-1 overflow-y-auto p-6">
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/posts" element={<Posts />} />
+      <Route path="/create-post" element={<PostEditor />} />
+      <Route path="/categories" element={<Categories />} />
+      <Route path="/comments" element={<Comments />} />
+      <Route path="/analytics" element={<Analytics />} />
+      <Route path="/users" element={<Users />} />
+      <Route path="/settings" element={<Settings />} />
+    </Routes>
+  </main>
+);
+
+const Dashboard = () => (
+  <section>
+    <h2 className="text-xl font-semibold mb-2">Dashboard Overview</h2>
+    <p className="text-gray-600">Welcome to your updated admin panel.</p>
+  </section>
+);
+
+const Posts = () => {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    axios.get("/api/posts").then((res) => setPosts(res.data)).catch(console.error);
+  }, []);
+
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4">Posts</h2>
+      <ul className="space-y-3">
+        {posts.map((post) => (
+          <li key={post.id} className="p-4 bg-white rounded-md shadow border border-gray-100">
+            <h3 className="font-medium text-lg">{post.title}</h3>
+            <p className="text-sm text-gray-500">Status: {post.status}</p>
+          </li>
+        ))}
+      </ul>
+      <NavLink to="/create-post" className="inline-block mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        Create New Post
+      </NavLink>
+    </section>
+  );
+};
+
+const PostEditor = () => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.post("/api/posts", { title, content })
+      .then(() => navigate("/posts"))
+      .catch(console.error);
+  };
+
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          placeholder="Post Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded"
+        />
+        <textarea
+          placeholder="Post Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded"
+        ></textarea>
+        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+          Submit
+        </button>
+      </form>
+    </section>
+  );
+};
+
+const Categories = () => {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    axios.get("/api/categories").then((res) => setCategories(res.data)).catch(console.error);
+  }, []);
+
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4">Categories</h2>
+      <ul className="space-y-2">
+        {categories.map((category) => (
+          <li key={category.id} className="p-3 bg-white rounded shadow border border-gray-100">
+            {category.name}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+const Comments = () => {
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    axios.get("/api/comments").then((res) => setComments(res.data)).catch(console.error);
+  }, []);
+
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4">Comments</h2>
+      <ul className="space-y-2">
+        {comments.map((comment) => (
+          <li key={comment.id} className="p-3 bg-white rounded shadow border border-gray-100">
+            {comment.content} <span className="text-sm text-gray-500">({comment.status})</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+const Analytics = () => (
+  <section>
+    <h2 className="text-xl font-semibold mb-4">Analytics</h2>
+    <p className="text-gray-600">Analytics data will be displayed here.</p>
+  </section>
+);
+
+const Users = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    axios.get("/api/users").then((res) => setUsers(res.data)).catch(console.error);
+  }, []);
+
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4">Users</h2>
+      <ul className="space-y-2">
+        {users.map((user) => (
+          <li key={user.id} className="p-3 bg-white rounded shadow border border-gray-100">
+            <strong>{user.username}</strong> <span className="text-sm text-gray-500">({user.email})</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+const Settings = () => (
+  <section>
+    <h2 className="text-xl font-semibold mb-4">Settings</h2>
+    <p className="text-gray-600">Manage your application settings here.</p>
+  </section>
+);
+
+export default AdminDashboard;

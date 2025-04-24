@@ -28,6 +28,10 @@ const UserProfile = () => {
   const loggedInUser = JSON.parse(localStorage.getItem("user"));
   const isOwner = loggedInUser?.username === username;
 
+  const userId = loggedInUser?.id;
+  
+
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -81,6 +85,32 @@ const UserProfile = () => {
     toast("Welcome to Admin Dashboard!");
   };
 
+  const handleAuthorRequest = async()=>{
+    try{
+      const res = fetch("/api/request-author", {
+        method : 'POST',
+        headers : {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ userId: userId }),
+      })
+     
+      if(res.ok){
+        toast('Request sent to admin!')
+      }
+      else {
+        console.log(data.message);
+      }
+
+    }
+    catch(error) {
+          console.log('Error  when asking approval', error)
+    }
+
+    
+  }
+
   if (isLoading) return <div className="text-center py-12 text-gray-600">Loading...</div>;
   if (error) return <div className="text-red-500 text-center py-12">Error: {error.message}</div>;
 
@@ -122,6 +152,15 @@ const UserProfile = () => {
                   Admin Dashboard
                 </button>
               )}
+              {!data.user.role==="admin" && !data.user.role==="author" &&(
+                  <button
+                    onClick={handleAuthorRequest}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Request Author Role
+                  </button>
+                )}
+
             </div>
           )}
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const RegisterPage = () => {
@@ -197,6 +197,12 @@ const RegisterPage = () => {
                 "Continue"
               )}
             </button>
+            <p className="text-center text-sm text-gray-600 mt-6">
+             have an account?{" "}
+            <Link to="/login" className="text-blue-600 font-medium hover:underline">
+              Sign in
+            </Link>
+             </p>
           </form>
         ) : (
           <div className="space-y-6">

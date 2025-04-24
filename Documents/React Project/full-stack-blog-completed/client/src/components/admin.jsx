@@ -86,7 +86,7 @@ const Sidebar = () => {
   const links = [
     { path: "/admin", label: "Dashboard" },
     { path: "/admin/home", label: "Posts" },
-    { path: "/admin/write", label: "Create Post" },
+    { path: "/admin/write", label: "Approve Blogger" },
     { path: "/admin/reports", label: "Manage Reports" },
     { path: "/admin/analytics", label: "Manage Analytics" },
     { path: "/admin/users", label: "Manage Users" },

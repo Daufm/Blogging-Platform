@@ -39,6 +39,7 @@ const router = createBrowserRouter([
       { path: "/posts", element: <PostListPage /> },
       { path: "/write", element: <Write /> },
       { path: "/authors/:username", element: <AuthorPage /> },
+      
       { 
         path: "/profile/:username", 
         element: <ProtectedRoute><ProfilePage /></ProtectedRoute> 

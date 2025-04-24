@@ -58,6 +58,7 @@ const SinglePostPage = () => {
           className="lg:text-lg flex flex-col gap-6 text-justify"
           dangerouslySetInnerHTML={{ __html: data.content }} // Render content from the database
         ></div>
+        
         {/* menu */}
         <div className="px-4 h-max sticky top-8">
           <h1 className="mb-4 text-sm font-medium">Author</h1>

@@ -10,14 +10,15 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white w-full">
+    <div className="bg-gradient-to-br from-slate-800 to-gray-500 text-white">
+    <footer className=" max-w-full">
       {/* Contact Us - Centered */}
       <div className="flex justify-center py-6 border-b border-gray-700">
         <a
           href="mailto:contact@blogsphere.com"
           className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl transition"
         >
-          Contact Us
+          Mail Us
         </a>
       </div>
 
@@ -37,15 +38,50 @@ const Footer = () => {
         <p className="text-sm text-gray-400 text-center">BLOGSPHERE</p>
 
         {/* Social Icons */}
-        <div className="flex gap-4 text-xl">
-          <a href="#" className="hover:text-indigo-400"><FaFacebookF /></a>
-          <a href="#" className="hover:text-indigo-400"><FaTwitter /></a>
-          <a href="#" className="hover:text-indigo-400"><FaInstagram /></a>
-          <a href="#" className="hover:text-indigo-400"><FaLinkedinIn /></a>
-          <a href="#" className="hover:text-indigo-400"><FaYoutube /></a>
-        </div>
+          <div className="flex gap-4 text-xl ">
+            <a
+              href="#"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 hover:translate-x-2 text-white transition-all"
+              aria-label="Facebook"
+            >
+              <FaFacebookF />
+            </a>
+            <a
+              href="#"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 hover:translate-x-2 text-white transition-all"
+              aria-label="Twitter"
+            >
+              <FaTwitter />
+            </a>
+            <a
+              href="#"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 hover:translate-x-2 text-white transition-all"
+              aria-label="Instagram"
+            >
+              <FaInstagram />
+            </a>
+            <a
+              href="#"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-700 hover:bg-blue-800 hover:translate-x-2 text-white transition-all"
+              aria-label="LinkedIn"
+            >
+              <FaLinkedinIn />
+            </a>
+            <a
+              href="#"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 hover:translate-x-2 text-white transition-all"
+              aria-label="YouTube"
+            >
+              <FaYoutube />
+            </a>
+          </div>
       </div>
+      <p className="text-center text-sm text-gray-100 py-4">
+        © {new Date().getFullYear()} BlogSphere.com All rights reserved.
+      </p>
+
     </footer>
+    </div>
   );
 };
 

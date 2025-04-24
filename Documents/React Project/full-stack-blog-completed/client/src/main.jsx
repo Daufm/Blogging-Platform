@@ -20,6 +20,7 @@ import "react-quill-new/dist/quill.snow.css";
 import {ProtectedRoute} from "./routes/ProtectedRoute.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./utils/AuthContext.jsx";
+import About from "./components/about.jsx";
 
 
 const queryClient = new QueryClient();
@@ -48,7 +49,11 @@ const router = createBrowserRouter([
         path: "/:slug", 
         element: <ProtectedRoute><SinglePostPage /></ProtectedRoute> 
       },
-      
+
+      {
+        path: "/about",element: <About />
+      },
+
     ],
   },
   // 👇 outside MainLayout → no Navbar

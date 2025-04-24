@@ -26,6 +26,13 @@ import About from "./components/about.jsx";
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
+
+   {
+     path: "/reports",
+     element: <AdminDashboard />,
+   },
+
+  // 👇 MainLayout → includes Navbar
   {
     element: <MainLayout />, // includes Navbar
     children: [
@@ -41,15 +48,22 @@ const router = createBrowserRouter([
         path: "/:slug", 
         element: <ProtectedRoute><SinglePostPage /></ProtectedRoute> 
       },
+
       {
         path: "/about",element: <About />
       },
+
     ],
   },
   // 👇 outside MainLayout → no Navbar
   {
     path: "/admin_dashboard",
-    element: <AdminDashboard />,
+    element: <ProtectedRoute><AdminDashboard /></ProtectedRoute>,
+  },
+  
+  {
+    path: "/admin/*",
+    element: <ProtectedRoute><AdminDashboard /></ProtectedRoute>,
   },
   {
     path: "/login",

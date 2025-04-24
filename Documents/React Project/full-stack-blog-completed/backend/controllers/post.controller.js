@@ -3,6 +3,9 @@ import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken"; // Import jwt for token verification
 import 'dotenv/config';
+import Report from "../models/report.model.js"; 
+
+
 
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -196,6 +199,72 @@ export const featurePost = async (req, res) => {
     res.status(403).json("Invalid or expired token!");
   }
 };
+
+export const reportPost = async (req, res)=>{
+   // Extract JWT from Authorization header
+    const { postId, reason } = req.body;
+    const userId = req.user.id; // from JWT
+   // const username = req.user.username;
+  
+    try {
+      // Optional: Check if already reported by same user
+      const existing = await Report.findOne({ postId, reportedBy: userId });
+      if (existing) {
+        return res.status(400).json({ message: "You already reported this post." });
+      }
+  
+      const report = new Report({
+        postId,
+        reportedBy: userId,
+        reason,
+        reportedAt: new Date(),
+      });
+  
+      await report.save();
+      res.status(201).json({ message: "Post reported successfully!" });
+    } catch (err) {
+      res.status(500).json({ message: "Error reporting post" });
+    }
+  // Optional: You can also notify the admin or take further action here
+  
+} 
+
+
+export const getReports = async (req, res) => {
+  const user = req.user;
+
+ // console.log("🔐 Authenticated User:", user);
+
+  // Check if user is admin
+  if (!user?.role ==="admin") {
+    console.warn("⛔ Access denied - User is not admin");
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+
+  try {
+    const reports = await Report.find()
+      .populate('reportedBy', 'username email')
+      .populate('postId', 'title content')
+      .sort({ reportedAt: -1 });
+
+    //console.log("✅ Reports fetched successfully:", reports.length);
+
+    res.json({ reports });
+  } catch (err) {
+    console.error("❌ Error while fetching reports:", err.message);
+    res.status(500).json({ message: "Failed to fetch reports", error: err.message });
+  }
+}
+
+export const dismissReport = async (req, res) => {
+  try {
+    await Report.findByIdAndDelete(req.params.id);
+    res.json({ message: "Report dismissed" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to dismiss report" });
+  }
+
+}
 
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IK_URL_ENDPOINT,

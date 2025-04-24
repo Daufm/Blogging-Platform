@@ -4,6 +4,7 @@ import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/post.route.js";
 import commentRouter from "./routes/comment.route.js";
 import webhookRouter from "./routes/webhook.route.js";
+import analyticsRoutes from "./routes/analytics.route.js";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -31,6 +32,8 @@ app.use("/users", userRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 app.use("/webhooks", webhookRouter);
+app.use("/analytics", analyticsRoutes);
+
 
 // Error handling middleware
 app.use((error, req, res, next) => {

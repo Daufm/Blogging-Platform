@@ -18,7 +18,15 @@ const Write = () => {
     // Check if the user is authenticated
     const isAuthenticated = () => {
         const token = localStorage.getItem("token");
-        return !!token; // Returns true if the token exists
+        if (!token) {
+            return false; // If no token exists, the user is not authenticated
+        }
+
+        const decodedToken = JSON.parse(atob(token.split(".")[1]));
+        const expirationTime = decodedToken.exp * 1000; // Convert to milliseconds
+        const currentTime = Date.now();
+
+       return expirationTime > currentTime; // Check if the token is still valid
     };
 
     // Redirect to login if the user is not authenticated

@@ -101,29 +101,30 @@ const UserProfile = () => {
           </span>
         </div>
         {isOwner && (
-        <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-2 md:static md:mt-4 w-full md:w-auto">
-          <button
-            onClick={handleEditProfile}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-full shadow-sm text-xs md:text-sm"
-          >
-            Edit
-          </button>
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-full shadow-sm text-xs md:text-sm"
-          >
-            Logout
-          </button>
-          {data.user.role === "admin" && (
-            <button
-              onClick={handleDashboard}
-              className="bg-blue-700 hover:bg-blue-400 text-white hover:text-black px-3 py-1.5 rounded-full shadow-sm text-xs md:text-sm"
-            >
-              Admin Dashboard
-            </button>
+            <div className="mt-4 w-full flex flex-col sm:flex-row sm:flex-wrap gap-2 justify-center sm:justify-start">
+              <button
+                onClick={handleEditProfile}
+                className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto px-4 py-2 text-sm rounded-full shadow-sm text-center"
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto px-4 py-2 text-sm rounded-full shadow-sm text-center"
+              >
+                Logout
+              </button>
+              {data.user.role === "admin" && (
+                <button
+                  onClick={handleDashboard}
+                  className="bg-blue-700 hover:bg-blue-400 text-white hover:text-black w-full sm:w-auto px-4 py-2 text-sm rounded-full shadow-sm text-center"
+                >
+                  Admin Dashboard
+                </button>
+              )}
+            </div>
           )}
-        </div>
-      )}
+
       </div>
 
       {/* Edit Profile Modal */}

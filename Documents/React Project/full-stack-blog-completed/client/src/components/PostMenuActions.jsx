@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 
 const PostMenuActions = ({ post }) => {
   const navigate = useNavigate();
-
+  const postId = post._id; // Get the post ID from the post object
   // Retrieve and decode the JWT
   const token = localStorage.getItem("token");
   const user = token ? jwtDecode(token) : null; // Decode the token to get user info
@@ -34,6 +34,7 @@ const PostMenuActions = ({ post }) => {
   const isAdmin = user?.role === "admin"; // Check if the user is an admin
   const isSaved = savedPosts?.data?.some((p) => p === post._id) || false;
 
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!token) {
@@ -53,6 +54,35 @@ const PostMenuActions = ({ post }) => {
       toast.error(error.response?.data || "Failed to delete post.");
     },
   });
+
+
+//mutation for reporting a post
+  const reportMutation = useMutation({
+    mutationFn: async () => {
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+      return axios.post(
+        `${import.meta.env.VITE_API_URL}/posts/reports`,
+        {
+          postId: post._id,
+          reason: "Inappropriate content",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      toast.success("Post reported successfully!");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data || "Failed to report post.");
+    },
+  });
+
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -111,6 +141,20 @@ const PostMenuActions = ({ post }) => {
     }
     deleteMutation.mutate();
   };
+
+  const handleReport = async () => {
+    if (!token) {
+      toast.error("You need to log in to perform this action.");
+      return navigate("/login");
+    }
+    try {
+      await reportMutation.mutateAsync();
+      toast.success("Post reported successfully!");
+    } catch (error) {
+      toast.error(error.response?.data || "Failed to report post.");
+    }
+  };
+  
 
   const handleFeature = () => {
     if (!token) {
@@ -217,6 +261,13 @@ const PostMenuActions = ({ post }) => {
           {deleteMutation.isPending && (
             <span className="text-xs">(in progress)</span>
           )}
+        </div>
+      )}
+      {user && post.user?._id !== user.id && !isAdmin && (
+        <div className="flex items-center gap-2 py-2 text-sm cursor-pointer"
+         onClick={() => handleReport(postId)}>
+           🚩
+          <span>Report this Post</span>
         </div>
       )}
     </div>

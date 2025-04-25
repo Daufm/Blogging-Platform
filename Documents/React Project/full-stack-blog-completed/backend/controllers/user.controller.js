@@ -42,6 +42,11 @@ export const DeleteUser = async (req, res) => {
 
 // Ban user
 export const BanUser = async (req, res) => {
+  
+  if (req.user.role !== "admin") {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+
   try {
     const { id } = req.params;
     const user = await User.findById(id);
@@ -115,7 +120,7 @@ export const requestOtp = async (req, res) => {
 
 // Verify OTP and register user
 export const verifyAndRegister = async (req, res) => {
-  const { username, email, password ,otp,role,sex,img} = req.body;
+  const { username, email, password ,otp,sex,img} = req.body;
   
   try {
     // Find the temporary OTP entry
@@ -144,9 +149,8 @@ console.log("i pass here");
       img,
       bio: "",
       password: hashedPassword,
-      savedPosts: [],
-      role: role || "User", 
-      sex,// Default to "User" if no role is provided
+      savedPosts: [], 
+      sex,
       isVerified: true // User is pre-verified since OTP is confirmed
     });
     

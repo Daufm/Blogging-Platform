@@ -6,7 +6,7 @@ import { getUserSavedPosts,getAuthor,GoogleLogin,updateAuthor,
 
 const router = express.Router()
 
-router.delete("/:id/ban", authenticate, BanUser)
+router.patch("/:id/ban", authenticate, BanUser)
 router.delete("/:id", authenticate, DeleteUser)
 router.get("/saved", getUserSavedPosts)
 router.patch("/save", savePost)

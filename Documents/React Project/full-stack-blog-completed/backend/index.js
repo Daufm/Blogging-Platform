@@ -5,6 +5,7 @@ import postRouter from "./routes/post.route.js";
 import commentRouter from "./routes/comment.route.js";
 import webhookRouter from "./routes/webhook.route.js";
 import analyticsRoutes from "./routes/analytics.route.js";
+import handleRequest from "./routes/handleRequest.route.js";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -33,6 +34,7 @@ app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 app.use("/webhooks", webhookRouter);
 app.use("/analytics", analyticsRoutes);
+app.use("/request",handleRequest);
 
 
 // Error handling middleware

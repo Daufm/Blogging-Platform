@@ -1,6 +1,7 @@
 // models/TempOTP.js
 import mongoose from "mongoose";
 
+
 const tempOTPSchema = new mongoose.Schema({
   email: { 
     type: String, 

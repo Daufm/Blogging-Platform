@@ -6,6 +6,7 @@ const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [sex, setSex] = useState(""); // New state for sex
   const [role, setRole] = useState("user"); // New state for role (default to "user")
   const [otp, setOtp] = useState("");
@@ -42,7 +43,6 @@ const RegisterPage = () => {
         password,
         username,
         sex, // Include sex in the request
-        role, // Include role in the request
         otp,
       });
 
@@ -115,15 +115,25 @@ const RegisterPage = () => {
               >
                 Password
               </label>
+              <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base"
-                placeholder="Create a password"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition pr-10"
+                placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
             </div>
             <div>
               <label
@@ -146,24 +156,7 @@ const RegisterPage = () => {
                 <option value="female">Female</option>
               </select>
             </div>
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base"
-              >
-                <option value="user">User</option>
-                <option value="author">Author</option>
-              </select>
-            </div>
+             
             <button
               type="submit"
               disabled={isSubmitting}

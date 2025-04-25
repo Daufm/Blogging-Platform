@@ -28,7 +28,7 @@ const UserProfile = () => {
   const loggedInUser = JSON.parse(localStorage.getItem("user"));
   const isOwner = loggedInUser?.username === username;
 
-  const userId = loggedInUser?.id;
+  const Id = loggedInUser.id;
   
 
 
@@ -85,17 +85,23 @@ const UserProfile = () => {
     toast("Welcome to Admin Dashboard!");
   };
 
-  const handleAuthorRequest = async()=>{
+  const handleAuthorRequest = async ()=>{
     try{
-      const res = fetch("/api/request-author", {
+      console.log("User ID from localStorage:", Id);
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/request/request-author`, {
         method : 'POST',
         headers : {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem("token")}`
         },
-        body: JSON.stringify({ userId: userId }),
+        body: JSON.stringify({ userId: Id }),
       })
-     
+
+      const data = await res.json();
+      if(res.status === 400){
+        toast.error(data.message);
+      }
       if(res.ok){
         toast('Request sent to admin!')
       }
@@ -108,7 +114,6 @@ const UserProfile = () => {
           console.log('Error  when asking approval', error)
     }
 
-    
   }
 
   if (isLoading) return <div className="text-center py-12 text-gray-600">Loading...</div>;
@@ -152,11 +157,11 @@ const UserProfile = () => {
                   Admin Dashboard
                 </button>
               )}
-              {!data.user.role==="admin" && !data.user.role==="author" &&(
+              {data.user.role !=="admin" && data.user.role !=="author" &&(
                   <button
                     onClick={handleAuthorRequest}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
+                    className="bg-amber-800 hover:bg-amber-700 text-white hover:text-black w-full sm:w-auto px-4 py-2 text-sm rounded-full shadow-sm text-center"
+                >
                     Request Author Role
                   </button>
                 )}

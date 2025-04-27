@@ -69,9 +69,7 @@ const Write = () => {
         },
         onError: (error) => {
             if (error.response) {
-                console.error("Error data:", error.response.data);
-                console.error("Error status:", error.response.status);
-                console.error("Error headers:", error.response.headers);
+                toast.error(error.response.data);
             } else if (error.request) {
                 console.error("No response received:", error.request);
             } else {

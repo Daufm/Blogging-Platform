@@ -153,7 +153,7 @@ const UserProfile = () => {
       toast.error(error.response?.data?.message || "Failed to update password.");
     }
   };
-  
+
 
   if (isLoading) return <div className="text-center py-12 text-gray-600">Loading...</div>;
   if (error) return <div className="text-red-500 text-center py-12">Error: {error.message}</div>;
@@ -192,7 +192,7 @@ const UserProfile = () => {
               {data.user.role === "admin" && (
                 <button
                   onClick={handleDashboard}
-                  className="bg-blue-700 hover:bg-blue-400 text-white hover:text-black w-full sm:w-auto px-4 py-2 text-sm rounded-full shadow-sm text-center"
+                  className="bg-stone-800 hover:bg-stone-700 text-white  w-full sm:w-auto px-4 py-2 text-sm rounded-full shadow-sm text-center"
                 >
                   Admin Dashboard
                 </button>

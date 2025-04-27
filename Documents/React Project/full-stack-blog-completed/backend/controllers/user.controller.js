@@ -381,12 +381,13 @@ export const updateProfile = async (req, res) => {
     console.log("REQ.BODY:", req.body);         // 🔍 log bio and img
     console.log("USER ID:", req.user?.id);       // 🔍 confirm token extraction
 
-    const { bio, img } = req.body;
+    const { bio, img ,username} = req.body;
     const userId = req.user.id;
 
     const updatedData = {};
     if (bio) updatedData.bio = bio;
     if (img) updatedData.img = img;
+    if (username) updatedData.username = username;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
 
@@ -401,7 +402,37 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+export const updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id;
 
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the old password is correct
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the password
+    user.password = hashedNewPassword;
+
+    await User.findByIdAndUpdate(userId, { password: hashedNewPassword});
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ message: "Failed to update password" });
+  }
+};
 
 
 

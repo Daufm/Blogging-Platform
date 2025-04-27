@@ -100,10 +100,11 @@ const MainContent = () => (
 );
 
 const Dashboard = () => (
-  <section>
-    <h2 className="text-xl font-semibold mb-2">Dashboard Overview</h2>
-    <p className="text-gray-600">Welcome to your updated admin panel.</p>
-  </section>
+  <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg">
+    <h1 className="text-3xl font-bold mb-2">Welcome back, Admin! 🎉</h1>
+    <p className="text-lg">Manage your content, users, and settings with ease. Let&apos;s keep everything running smoothly!</p>
+    <p className="mt-4 text-sm opacity-80">Your command center for full control and insights.</p>
+  </div>
 );
 
 
@@ -469,7 +470,7 @@ const Users1 = () => {
       }
 
       setUsers((prevUsers) => prevUsers.map(user => 
-        user.id === userId ? { ...user, isBanned: true } : user
+        user._id === userId ? { ...user, isBanned: !user.isBanned } : user
       ));
      
       

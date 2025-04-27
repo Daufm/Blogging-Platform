@@ -60,6 +60,10 @@ const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState("");
   const [img, setImg] = useState(null);
+  const [username1, setUsername] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [progress, setProgress] = useState(0);
 
   const handleEditProfile = () => {
@@ -67,14 +71,23 @@ const UserProfile = () => {
     setBio(data.user.bio || "");
   };
 
+  
+
   const handleSaveProfile = async (e) => {
+
     e.preventDefault();
     if (!bio.trim()) {
       toast("Bio cannot be empty.");
       return;
     }
+    if (!username1.trim()) {
+      toast("Username cannot be empty.");
+      return;
+    }
+    
     const updatedData = {
       bio,
+      username: username1,
       img: img?.filePath || data.user.img,
     };
     mutation.mutate(updatedData);
@@ -116,6 +129,32 @@ const UserProfile = () => {
 
   }
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const res = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/users/update-password`,
+        { oldPassword, newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      if (res.status === 200) {
+        toast.success("Password updated successfully!");
+        setShowChangePassword(false);
+        setOldPassword("");
+        setNewPassword("");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update password.");
+    }
+  };
+  
+
   if (isLoading) return <div className="text-center py-12 text-gray-600">Loading...</div>;
   if (error) return <div className="text-red-500 text-center py-12">Error: {error.message}</div>;
 
@@ -136,6 +175,7 @@ const UserProfile = () => {
           </span>
         </div>
         {isOwner && (
+          <> 
             <div className="mt-4 w-full flex flex-col sm:flex-row sm:flex-wrap gap-2 justify-center sm:justify-start">
               <button
                 onClick={handleEditProfile}
@@ -167,6 +207,65 @@ const UserProfile = () => {
                 )}
 
             </div>
+       <div>
+              <button
+                onClick={() => setShowChangePassword(true)}
+                className="text-blue-600 hover:text-blue-800 underline text-sm"
+              >
+                Change Password
+              </button>
+
+              {showChangePassword && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                  <form
+                    onSubmit={handleChangePassword}
+                    className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg"
+                  >
+                    <h2 className="text-xl font-semibold mb-4">Change Password</h2>
+
+                    {/* Old Password */}
+                    <label className="block text-sm mb-1">Old Password</label>
+                    <input
+                      type="password"
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      className="w-full border px-4 py-2 rounded mb-4"
+                      placeholder="Enter old password"
+                      required
+                    />
+
+                    {/* New Password */}
+                    <label className="block text-sm mb-1">New Password</label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full border px-4 py-2 rounded mb-4"
+                      placeholder="Enter new password"
+                      required
+                    />
+
+                    <div className="mt-4 flex justify-between">
+                      <button
+                        type="submit"
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowChangePassword(false)}
+                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+           </div>
+            </>
+            
           )}
 
       </div>
@@ -184,6 +283,18 @@ const UserProfile = () => {
               className="w-full border px-4 py-2 rounded mb-4"
               placeholder="Write something about yourself..."
             ></textarea>
+            
+                  {/* Change Username */}
+                  <label className="block text-sm mb-1">Username</label>
+                  <input
+                    type="text"
+                    value={username1}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full border px-4 py-2 rounded mb-4"
+                    placeholder="Enter new username"
+                  />
+    
+            
             <label className="block text-sm mb-1">Profile Image</label>
             <Upload type="image" setProgress={setProgress} setData={setImg}>
               <button type="button" className="mt-2 w-full bg-gray-100 p-2 rounded-lg text-sm">

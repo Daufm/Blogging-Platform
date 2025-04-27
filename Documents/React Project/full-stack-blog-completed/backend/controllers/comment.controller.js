@@ -19,6 +19,11 @@ export const addComment = async (req, res) => {
       return res.status(404).json("User not found.");
     }
 
+    if(user.isBanned){
+      return res.status(403).json("You are banned from commenting.");
+    }
+    
+
     const newComment = new Comment({
       ...req.body,
       user: user._id,

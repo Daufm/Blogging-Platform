@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
 import 'dotenv/config';
 import { OAuth2Client } from "google-auth-library";
-
+import sendEmail from "../lib/sendEmail.js";
 
 //Get all users
 export const getAllUser = async (req, res) => {
@@ -43,7 +43,7 @@ export const DeleteUser = async (req, res) => {
 // Ban user
 export const BanUser = async (req, res) => {
   
-  if (req.user.role !== "admin") {
+  if (!req.user || req.user.role !== "admin") {
     return res.status(401).json({ message: "Not authorized" });
   }
 
@@ -72,45 +72,52 @@ export const requestOtp = async (req, res) => {
   const { email } = req.body;
 
   try {
-    console.log("Received email:", email);
+      console.log("Received email:", email);
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      console.log("Email already registered");
-      return res.status(400).json({ message: "Email already registered" });
-    }
-
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-    console.log("Generated OTP:", otp);
-
-    await TempOTP.findOneAndUpdate(
-      { email },
-      { email, otp, otpExpires },
-      { upsert: true, new: true }
-    );
-    console.log("OTP saved to TempOTP collection");
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        console.log("Email already registered");
+        return res.status(400).json({ message: "Email already registered" });
       }
-    });
 
-    await transporter.sendMail({
-      from: `"Blog Sphere" <${process.env.EMAIL_USER}>`,
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+      console.log("Generated OTP:", otp);
+
+    
+
+    // Send OTP email
+  try{ 
+    await sendEmail({
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP code is ${otp}. It will expire in 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h2>Verification Code</h2>
+          <p>Your OTP code is:</p>
+          <h1 style="background: #f3f4f6; display: inline-block; padding: 10px 20px; border-radius: 8px;">${otp}</h1>
+          <p>This code will expire in 10 minutes.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+      `,
     });
-    console.log("OTP email sent");
+    
+      console.log("OTP email sent");
 
-    res.status(200).json({ message: "OTP sent successfully" });
+
+   // Save OTP to TempOTP collection
+      await TempOTP.findOneAndUpdate(
+        { email },
+        { email, otp, otpExpires },
+        { upsert: true, new: true }
+      );
+      console.log("OTP saved to TempOTP collection");
+
+      res.status(200).json({ message: "OTP sent successfully" });
+    } catch (emailError) {
+      console.error("Error sending OTP email:", emailError);
+      return res.status(500).json({ message: "Error sending OTP email" });
+    }
   } catch (error) {
     console.error("Error in requestOtp:", error);
     res.status(500).json({ message: "Error sending OTP", error });
@@ -141,12 +148,17 @@ export const verifyAndRegister = async (req, res) => {
     
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
-console.log("i pass here");
+    
+    // Validate the img field (optional)
+    const validatedImg = img && img.startsWith("http") ? img : "";
+
+
+
     // OTP is valid, now create the user
     const user = new User({
       username,
       email,
-      img,
+      img:validatedImg,
       bio: "",
       password: hashedPassword,
       savedPosts: [], 
@@ -451,4 +463,80 @@ export const updateAuthor = async (req, res)=>{
   } catch (error) {
     res.status(500).json({ message: "Failed to update profile" });
   }
+}
+
+export const sendResetPasswordLink = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // 1. Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Important: Don't reveal if the email exists or not
+      return res.status(200).json({ message: "If that email is registered, a reset link was sent." });
+    }
+
+    // 2. Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpire = Date.now() + 30 * 60 * 1000; // expires in 30 mins
+
+    // 3. Save to user record
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = resetTokenExpire;
+    await user.save();
+
+    // 4. Send email
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset Request",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <h2>Password Reset Request</h2>
+          <p>You requested a password reset. Click the button below to reset your password:</p>
+          <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+          <p>If you didn't request this, you can safely ignore this email.</p>
+          <p style = "color:blue">Thanks,<br/><h2>Blog Sphere</h2></p>
+        </div>
+      `,
+    });
+    
+
+    res.status(200).json({ message: "Reset link sent to your email." });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error sending reset link." });
+  }
+};
+
+export const resetPassword = async(req, res)=>{
+  const { token, newPassword } = req.body;
+
+  try {
+    // 1. Find user by reset token
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpire: { $gt: Date.now() } // Check if token is still valid
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    // 2. Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 3. Update user password and clear reset token
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+    res.status(200).json({ message: "Password reset successful." });
+
+}
+ catch (error){
+    console.error("Error resetting password:", error);
+    res.status(500).json({ message: "Error resetting password." });
+ }
 }

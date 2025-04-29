@@ -52,6 +52,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false, // Tracks if the user is created via Google login
     },
+    resetPasswordToken: {
+       type: String },
+    resetPasswordExpire: {
+       type: Date },
   },
   { timestamps: true }
 );

@@ -3,17 +3,20 @@ import { useState , useContext } from "react";
 import { Link ,useNavigate} from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { AuthContext } from "../utils/AuthContext";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   // useContext to get the login function from AuthContext
   const { login } = useContext(AuthContext);
 
   const [email, setEmail] = useState("");
+  const [email2, setEmail2] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [showChangePassword, setShowChangePassword] = useState(false);
   
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -44,6 +47,40 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
+
+
+const handleSendCode = async (e)=>{
+  e.preventDefault();
+  setIsLoading(true);
+  setError("");
+  try {
+
+    const email =  email2;
+    if (!email) {
+      toast.error("Please enter your email address.");
+      return;
+    }
+
+    // Send the email to the server
+    const response = await axios.post("http://localhost:3000/users/send-link", { email });
+
+    if (response.status === 200) {
+     
+      toast.success("We've sent you a reset link. If you don't receive it within a few minutes, check your spam folder.");
+      setShowChangePassword(false)
+    } else {
+      toast.error("Something went wrong. Please try again.");
+
+    }
+  } catch (err) {
+    setError(err.response?.data?.message || "Something went wrong. Please try again.");
+    setShowChangePassword(false)
+  } finally {
+    setIsLoading(false);
+    setShowChangePassword(false)
+  }
+}
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -106,9 +143,13 @@ const LoginPage = () => {
       {/* Remember me */}
       <div className="flex items-center justify-between">
         
-        <a href="#" className="text-sm text-blue-600 hover:underline">
+        <a href="#"
+          onClick={() => setShowChangePassword(true)}
+          className="text-sm text-blue-600 hover:underline">
           Forgot password?
         </a>
+
+        
       </div>
 
       {/* Submit */}
@@ -120,6 +161,36 @@ const LoginPage = () => {
         {isLoading ? "Signing in..." : "Sign In"}
       </button>
     </form>
+    {showChangePassword && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <form onSubmit={handleSendCode} className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">Send Magic Link</h2>
+              <label className="block text-sm mb-1">Email</label>
+              <input
+                type="email"
+                value={email2}
+                onChange={(e) => setEmail2(e.target.value)}
+                className="w-full border px-4 py-2 rounded mb-4"
+                placeholder="Enter Email"
+              />
+             <div className="flex justify-between"> 
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+              >
+                Send Code
+              </button>
+              <button
+                onClick={() => setShowChangePassword(false)}
+                type="button"
+                className="bg-blue-500  text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+              >
+                Close
+              </button>
+              </div>
+            </form>
+          </div>
+        )}
 
     {/* Divider */}
     <div className="my-6 flex items-center justify-center text-gray-400 text-sm">

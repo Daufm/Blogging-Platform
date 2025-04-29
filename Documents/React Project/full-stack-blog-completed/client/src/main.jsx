@@ -21,7 +21,7 @@ import {ProtectedRoute} from "./routes/ProtectedRoute.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./utils/AuthContext.jsx";
 import About from "./components/about.jsx";
-
+import ForgetPasswordPage from "./components/ForgetPass.jsx";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +60,11 @@ const router = createBrowserRouter([
   {
     path: "/admin_dashboard",
     element: <ProtectedRoute><AdminDashboard /></ProtectedRoute>,
+  },
+  {
+    path: "/reset-password",
+    element: <ForgetPasswordPage />,
+
   },
   
   {

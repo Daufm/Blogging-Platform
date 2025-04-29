@@ -7,6 +7,9 @@ import { useInView } from "react-intersection-observer";
 const FeaturedPosts = lazy(() => import("../components/FeaturedPosts"));
 const PostList = lazy(() => import("../components/PostList"));
 
+
+
+
 const Homepage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const controls = useAnimation();
@@ -108,6 +111,8 @@ const Homepage = () => {
             explore new perspectives, and connect with like-minded individuals.
           </motion.p>
 
+         
+         
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

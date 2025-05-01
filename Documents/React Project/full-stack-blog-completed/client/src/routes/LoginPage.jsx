@@ -25,7 +25,7 @@ const LoginPage = () => {
     
     try {
      
-      const response = await axios.post("http://localhost:3000/users/login", {email, password})
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, {email, password})
       if (response.status === 200) {
         //  the API returns a token 
         const {token, user} = response.data;
@@ -62,7 +62,7 @@ const handleSendCode = async (e)=>{
     }
 
     // Send the email to the server
-    const response = await axios.post("http://localhost:3000/users/send-link", { email });
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/send-link`, { email });
 
     if (response.status === 200) {
      

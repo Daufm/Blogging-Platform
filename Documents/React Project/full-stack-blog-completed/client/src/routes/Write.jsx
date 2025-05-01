@@ -40,7 +40,7 @@ const Write = () => {
     useEffect(() => {
         if (img) {
             setValue((prev) => 
-                prev + `<p><img src="${img.url}" width="600" height="400" style="max-width: 100%; height: auto;"/></p>`
+                prev + `<p><img src="${img.url}" width="500" height="300" style="max-width: 100%; height: auto;"/></p>`
             );
         }
     }, [img]);

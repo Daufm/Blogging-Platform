@@ -1,13 +1,11 @@
 import PostListItem from "./PostListItem";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 
 const fetchPosts = async (pageParam, searchParams) => {
   const searchParamsObj = Object.fromEntries([...searchParams]);
-
-  console.log(searchParamsObj);
 
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts`, {
     params: { page: pageParam, limit: 10, ...searchParamsObj },
@@ -16,7 +14,7 @@ const fetchPosts = async (pageParam, searchParams) => {
 };
 
 const PostList = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const {
     data,
@@ -24,8 +22,6 @@ const PostList = () => {
     fetchNextPage,
     hasNextPage,
     isFetching,
-    isFetchingNextPage,
-    status,
   } = useInfiniteQuery({
     queryKey: ["posts", searchParams.toString()],
     queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam, searchParams),
@@ -34,39 +30,39 @@ const PostList = () => {
       lastPage.hasMore ? pages.length + 1 : undefined,
   });
 
-  // if (status === "loading") return "Loading...";
-  if (isFetching) return "Loading...";
-  
-
-  // if (status === "error") return "Something went wrong!";
-  if (error) return "Something went wrong!";
+  if (isFetching) return <div className="text-center py-4">Loading...</div>;
+  if (error) return <div className="text-center text-red-500">Something went wrong!</div>;
 
   const allPosts = data?.pages?.flatMap((page) => page.posts) || [];
 
   return (
-    <div>
-     {allPosts.length === 0 ? (
-      <p>No posts available.</p>
-    ) : (
-      <InfiniteScroll
-        dataLength={allPosts.length}
-        next={fetchNextPage}
-        hasMore={!!hasNextPage}
-        loader={<h4>Loading more posts...</h4>}
-        endMessage={
-          <p>
-            <b>All posts loaded!</b>
-          </p>
-        }
-      >
-        {allPosts
-          .filter((post) => post._id) // Ensure post._id exists
-          .map((post) => (
-            <PostListItem key={post._id} post={post} />
+    <div className="flex flex-wrap gap-6 justify-start">
+      {allPosts.length === 0 ? (
+        <p className="text-gray-500 text-center w-full">No posts available.</p>
+      ) : (
+        <InfiniteScroll
+          dataLength={allPosts.length}
+          next={fetchNextPage}
+          hasMore={!!hasNextPage}
+          loader={<h4 className="text-center">Loading more posts...</h4>}
+          endMessage={
+            <p className="text-center text-gray-500">
+              {/* <b>All posts loaded!</b> */}
+            </p>
+          }
+          className="flex flex-wrap gap-6 justify-start"
+        >
+          {allPosts.map((post) => (
+            <div
+              key={post._id}
+              className="flex flex-col w-full sm:w-[calc(60%-1rem)] md:w-[calc(45%-1rem)] lg:w-[calc(30%-1rem)]"
+            >
+              <PostListItem post={post} />
+            </div>
           ))}
-      </InfiniteScroll>
-    )} 
-  </div>
+        </InfiniteScroll>
+      )}
+    </div>
   );
 };
 

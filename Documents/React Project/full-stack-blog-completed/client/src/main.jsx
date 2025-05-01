@@ -22,7 +22,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./utils/AuthContext.jsx";
 import About from "./components/about.jsx";
 import ForgetPasswordPage from "./components/ForgetPass.jsx";
-
+import SupportAuthor from "./components/payment.jsx";
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
@@ -53,6 +53,9 @@ const router = createBrowserRouter([
       {
         path: "/about",element: <About />
       },
+      {
+        path: "/support",element: <SupportAuthor />
+      }
 
     ],
   },

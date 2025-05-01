@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ const RegisterPage = () => {
 
     try {
       // Verify OTP and create user if valid
-      await axios.post("http://localhost:3000/users/verify-otp", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/users/verify-otp1`, {
         email,
         password,
         username,

@@ -51,7 +51,7 @@ const VerifyOtpPage = () => {
           </button>
         </form>
         <p className="text-sm text-center text-gray-600 mt-4">
-          Didn't receive the OTP?{" "}
+          Didn&apos;t receive the OTP?{" "}
           <a href="/resend-otp" className="text-blue-600 hover:underline">
             Resend OTP
           </a>

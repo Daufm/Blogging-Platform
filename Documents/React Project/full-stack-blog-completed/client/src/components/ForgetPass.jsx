@@ -12,7 +12,7 @@ const ForgetPasswordPage = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/users/reset-password", {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/reset-password`, {
         token,
         newPassword,
       });

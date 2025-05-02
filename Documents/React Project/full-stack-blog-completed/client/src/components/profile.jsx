@@ -85,6 +85,10 @@ const UserProfile = () => {
     mutation.mutate(updatedData);
   };
 
+  const handlePaymentMethod = ()=>{
+    navigate("/payment-methods");
+  }
+
   const handleAuthorRequest = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/request/request-author`, {
@@ -103,10 +107,6 @@ const UserProfile = () => {
     }
   };
 
-  const handleSupportAuthore = async ()=>{
-    navigate("/support");
-    toast.success("Support Author page opened!");
-  }
   if (isLoading) return (
     <div className="flex items-center justify-center h-screen">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -184,6 +184,12 @@ const UserProfile = () => {
                   Edit Profile
                 </button>
                 <button
+                  onClick={handlePaymentMethod}
+                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-lg font-medium transition"
+                >
+                  Add Payment Method
+                </button>
+                <button
                   onClick={handleLogout}
                   className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-lg font-medium transition"
                 >
@@ -234,15 +240,7 @@ const UserProfile = () => {
               Change Password
             </button>
 
-            <button
-             onClick={handleSupportAuthore}
-             className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-             >
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-1-13h2v6h3l-4 4-4-4h3V7z" />
-              </svg>
-                Donate(Support) Author
-            </button>
+           
             
             {showChangePassword && <ResetPassword setShowChangePassword={setShowChangePassword} />}
           </div>
@@ -265,7 +263,7 @@ const UserProfile = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="mt-4 text-lg font-medium text-gray-900">No posts yet</h3>
-              <p className="mt-1 text-gray-500">When {data.user.username} creates posts, they'll appear here.</p>
+              <p className="mt-1 text-gray-500">When {data.user.username} creates posts, they&apos;ll appear here.</p>
               {isOwner && (
                 <Link 
                   to="/write" 
@@ -315,6 +313,9 @@ const UserProfile = () => {
                   placeholder="Tell people about yourself..."
                 ></textarea>
               </div>
+
+          
+
               
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>

@@ -56,6 +56,14 @@ const userSchema = new Schema(
        type: String },
     resetPasswordExpire: {
        type: Date },
+    stripPaymentLink: {
+      type: String,
+      default: "",
+    },
+    supportLink: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

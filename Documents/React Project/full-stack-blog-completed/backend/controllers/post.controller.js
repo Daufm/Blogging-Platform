@@ -278,6 +278,43 @@ export const dismissReport = async (req, res) => {
 
 }
 
+export const postLike = async (req, res) => {
+
+  const token = req.headers.authorization?.split(" ")[1]; 
+
+  if (!token) {
+    return res.status(401).json("Not authenticated!");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify and decode the JWT
+    const userId = decoded.id; // Extract user ID from the token
+
+    const postId = req.params.id;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json("Post not found!");
+    }
+
+    const isLiked = post.likes.includes(userId);
+
+    if (isLiked) {
+      post.likes.pull(userId);
+    } else {
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.status(200).json({ message: isLiked ? "Post unliked" : "Post liked" });
+  } catch (error) {
+    console.error(error);
+    res.status(403).json("Invalid or expired token!");
+  }
+}
+
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IK_URL_ENDPOINT,
   publicKey: process.env.IK_PUBLIC_KEY,

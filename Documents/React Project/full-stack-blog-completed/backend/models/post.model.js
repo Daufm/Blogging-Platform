@@ -35,6 +35,10 @@ const postSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    likes: [ { 
+       type: Schema.Types.ObjectId, 
+       ref: "User" 
+      } ],
     visit: {
       type: Number,
       default: 0,

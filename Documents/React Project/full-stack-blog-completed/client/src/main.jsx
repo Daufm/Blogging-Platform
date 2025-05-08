@@ -24,6 +24,7 @@ import About from "./components/about.jsx";
 import ForgetPasswordPage from "./components/ForgetPass.jsx";
 import SupportAuthor from "./components/payment.jsx";
 import ThankYouPage from "./components/ThankYou.jsx";
+import FeaturedPosts from "./components/FeaturedPosts.jsx";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,6 @@ const router = createBrowserRouter([
       { path: "/posts", element: <PostListPage /> },
       { path: "/write", element: <Write /> },
       { path: "/authors/:username", element: <AuthorPage /> },
-      
       { 
         path: "/profile/:username", 
         element: <ProtectedRoute><ProfilePage /></ProtectedRoute> 
@@ -51,19 +51,22 @@ const router = createBrowserRouter([
         path: "/:slug", 
         element: <ProtectedRoute><SinglePostPage /></ProtectedRoute> 
       },
-
       {
-        path: "/about",element: <About />
+        path: "/about",
+        element: <About />
       },
       {
-        path: "/support",element: <SupportAuthor />
+        path: "/support",
+        element: <SupportAuthor />
       },
       {
         path: '/thank-you',
-        element: <ThankYouPage  />
-
+        element: <ThankYouPage />
+      },
+      {
+        path: '/featured_posts',
+        element: <FeaturedPosts/>
       }
-
     ],
   },
   // 👇 outside MainLayout → no Navbar

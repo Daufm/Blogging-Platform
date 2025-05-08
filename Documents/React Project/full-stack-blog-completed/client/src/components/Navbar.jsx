@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Image from "./Image";
+import Search from "./Search";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useContext } from "react";
@@ -125,6 +126,14 @@ const Navbar = () => {
             </motion.span>
           </Link>
 
+          {/* separator */}
+          <div className="h-10 w-px bg-gradient-to-b from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+      
+          {/* search */}
+          <div className="transition-transform duration-200 hover:scale-105">
+            <Search />
+          </div>
+
           {/* MOBILE MENU */}
           <div className="md:hidden">
             {/* MOBILE BUTTON */}
@@ -179,7 +188,43 @@ const Navbar = () => {
                         </span>
                       </Link>
                     </motion.div>
-                  ))}
+                  ))} 
+
+                    {/* Write Button */}
+                  <motion.div
+                    className="flex justify-end px-4 py-2"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Link
+                      to="write"
+                      className="relative group"
+                      aria-label="Write a post"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                      <div className="relative flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="transform group-hover:rotate-45 transition-transform duration-300"
+                        >
+                          <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                          <path d="M2 2l7.586 7.586" />
+                          <circle cx="11" cy="11" r="2" />
+                        </svg>
+                        <span className="font-medium">Write</span>
+                      </div>
+                    </Link>
+                  </motion.div>
+
+                  
 
                   <motion.div
                     custom={navLinks.length}
@@ -187,6 +232,7 @@ const Navbar = () => {
                     animate="visible"
                     variants={navItemVariants}
                   >
+
                     {user ? (
                       <Link 
                         to={`/profile/${user.username}`} 
@@ -239,6 +285,33 @@ const Navbar = () => {
                 </span>
               </Link>
             ))}
+
+            {/* Write Button - Desktop */}
+            <Link
+              to="write"
+              className="relative group hidden md:block"
+              aria-label="Write a post"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+              <div className="relative flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="transform group-hover:rotate-45 transition-transform duration-300"
+                >
+                  <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                  <path d="M2 2l7.586 7.586" />
+                  <circle cx="11" cy="11" r="2" />
+                </svg>
+                <span className="font-medium">Write</span>
+              </div>
+            </Link>
 
             {user ? (
               renderProfile()

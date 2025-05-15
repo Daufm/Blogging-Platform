@@ -77,7 +77,7 @@ const Homepage = () => {
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6 min-h-screen">
         {/* Post List - Scrollable */}
-        <div className="w-full lg:w-2/3 overflow-y-auto">
+        <div className="w-full lg:w-[70%] overflow-y-auto">
           <Suspense fallback={<div>Loading posts...</div>}>
             <motion.div
               initial={{ opacity: 0 }}
@@ -104,8 +104,8 @@ const Homepage = () => {
         </div>
 
         {/* Fixed Featured Posts */}
-        <div className="w-full lg:w-1/3">
-          <div className="sticky top-24">
+        <div className="w-full lg:w-[30%] lg:sticky lg:top-24">
+          <div className="sticky top-24 ">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}

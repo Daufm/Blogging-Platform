@@ -115,6 +115,10 @@ const SinglePostPage = () => {
           <Search />
         </div>
       </div>
+      <div>
+        
+
+      </div>
       <Comments postId={data?._id}/>
     </div>
   );

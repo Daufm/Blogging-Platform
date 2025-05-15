@@ -56,8 +56,8 @@ const PostListItem = ({ post }) => {
   };
 
   return (
-    <div className="w-full md:w-1/2 pr-4">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 h-full flex flex-col">
+    <div className="w-full md:w-[60%] lg:w-[70%] pr-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 h-full flex flex-col hover:shadow-md transition-shadow duration-300">
         {/* Post Image */}
         {post.img && (
           <div className="w-full h-40 overflow-hidden mb-3">
@@ -93,7 +93,7 @@ const PostListItem = ({ post }) => {
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.desc}</p>
 
         {/* Metadata and Actions */}
-        <div className="flex items-center justify-between mt-auto">
+        <div className="flex items-center justify-between gap-5 mt-auto">
           <div className="flex items-center gap-2">
             {post.user?.img ? (
               <Image

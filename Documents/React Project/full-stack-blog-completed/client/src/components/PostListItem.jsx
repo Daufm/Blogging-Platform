@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import Image from "./Image";
 import { format } from "timeago.js";
@@ -6,8 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { fetchAuthorData } from "../utils/api";
 import { useState , useEffect } from "react";
 import { toast } from "react-toastify";
-
-
 
 
 const PostListItem = ({ post }) => {

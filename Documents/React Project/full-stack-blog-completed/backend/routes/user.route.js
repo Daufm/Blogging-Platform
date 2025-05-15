@@ -2,7 +2,7 @@ import express from "express"
 import {authenticate} from '../middlewares/auth.js';
 import { getUserSavedPosts,getAuthor,GoogleLogin,updateAuthor,
     updateProfile,getUserProfile, savePost ,requestOtp,resetPassword,
-    verifyAndRegister,Login,getAllUser,DeleteUser,BanUser,updatePassword,sendResetPasswordLink} from "../controllers/user.controller.js"
+    verifyAndRegister,Login,getAllUser,DeleteUser,BanUser, updatePassword,sendResetPasswordLink} from "../controllers/user.controller.js"
 
 
 const router = express.Router()
@@ -23,4 +23,5 @@ router.patch('/profile/update', authenticate, updateProfile);
 router.get("/all", getAllUser);
 router.post("/send-link" , sendResetPasswordLink);
 router.post("/reset-password", resetPassword);
+
 export default router 

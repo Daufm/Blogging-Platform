@@ -16,14 +16,14 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: function () {
-        return !this.isGoogleUser; // Password is required only if the user is not a Google user
+        return !this.isGoogleUser;
       },
     },
     isVerified: {
       type: Boolean,
       default: false,
     },
-    isBanned:{
+    isBanned: {
       type: Boolean,
       default: false,
     },
@@ -37,12 +37,12 @@ const userSchema = new Schema(
     },
     bio: {
       type: String,
-      default: "", // Optional, avoids `undefined`
+      default: "",
     },
     sex: {
       type: String,
-      enum: ["male", "female", "other"], // Added "other" as a valid option
-      default: "other", // Default value is now valid
+      enum: ["male", "female", "other"],
+      default: "other",
     },
     savedPosts: {
       type: [String],
@@ -50,12 +50,14 @@ const userSchema = new Schema(
     },
     isGoogleUser: {
       type: Boolean,
-      default: false, // Tracks if the user is created via Google login
+      default: false,
     },
     resetPasswordToken: {
-       type: String },
+      type: String,
+    },
     resetPasswordExpire: {
-       type: Date },
+      type: Date,
+    },
     stripPaymentLink: {
       type: String,
       default: "",
@@ -64,6 +66,22 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+
+    // ✅ NEW FIELDS
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
   },
   { timestamps: true }
 );

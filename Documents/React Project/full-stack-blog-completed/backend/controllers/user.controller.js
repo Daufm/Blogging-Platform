@@ -344,25 +344,50 @@ export const savePost = async (req, res) => {
 
 
 
+
+
 export const getAuthor = async (req, res) => {
   try {
     const { username } = req.params;
 
+    const token = req.headers.authorization?.split(" ")[1];
+    const decodedToken = token ? jwt.verify(token, process.env.JWT_SECRET) : null;
+    const viewerId = decodedToken ? decodedToken.id : null;
+
     // Find the author by username
-    const author = await User.findOne({ username }).select("username img bio role");
+    const author = await User.findOne({ username }).select("username img bio role followers following createdAt");
     if (!author) {
       return res.status(404).json({ message: "Author not found" });
     }
 
-    // Find the posts by the author
-    const posts = await Post.find({ user: author._id }).select("title desc slug img createdAt category");
+    // Check if the viewer is following the author
+    const isFollowing = viewerId ? author.followers.includes(viewerId) : false;
 
-    res.status(200).json({ author, posts });
+    // Find the posts by the author
+    const posts = await Post.find({ user: author._id })
+       .populate("user", "username img")
+       .select("title desc slug img createdAt category");
+
+    // Add isFollowing manually
+    const authorData = {
+      _id: author._id,
+      username: author.username,
+      img: author.img,
+      bio: author.bio,
+      role: author.role,
+      followers: author.followers,
+      following: author.following,
+      createdAt: author.createdAt,
+      isFollowing,
+    };
+
+    res.status(200).json({ authorData, posts });
   } catch (error) {
     console.error("Error fetching author data:", error);
     res.status(500).json({ message: "Failed to fetch author data" });
   }
 };
+
 
 
 

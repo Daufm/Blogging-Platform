@@ -7,6 +7,7 @@ import webhookRouter from "./routes/webhook.route.js";
 import analyticsRoutes from "./routes/analytics.route.js";
 import handleRequest from "./routes/handleRequest.route.js";
 import PaymentRouter from "./routes/PaymentRouter.js"
+import authorRouter from "./routes/authorRouter.js";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -37,7 +38,7 @@ app.use("/webhooks", webhookRouter);
 app.use("/analytics", analyticsRoutes);
 app.use("/request",handleRequest);
 app.use("/payment", PaymentRouter)
-
+app.use("/author", authorRouter);
 
 // Error handling middleware
 app.use((error, req, res, next) => {

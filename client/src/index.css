@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: white;
+  width: 100vw;
+  overflow-x: hidden;
+  font-family: "Montserrat", sans-serif;
+}
+
+.animatedButton{
+  animation-duration: 10000ms;
+}
+
+.ql-container{
+  border: none !important;
+}
+.ql-toolbar{
+  border: none !important;
+}
+.ql-editor{
+  border: none !important;
+}
+
+/* Tailwind Config or Global CSS */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+}

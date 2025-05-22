@@ -57,6 +57,10 @@ const AuthorPage = () => {
     navigate("/support");
   };
 
+  const handlePaymentMethod = () => {
+    navigate("/payment-methods");
+  };
+
 // Function to handle follow/unfollow action
 const handleFollow = async (authorId) => {
   try {
@@ -127,7 +131,18 @@ const handleFollow = async (authorId) => {
                 </svg>
                 Support Author
               </button>
+
+              <button
+                onClick={handlePaymentMethod}
+                className="flex-shrink-0 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
+                
+                fullWidth={{ xs: true, sm: false }}
+               >
+               Payment
+              </button>
             </div>
+
+            
 
             <p className="text-gray-600 mb-4">
               {data.authorData.bio || "This author hasn't written a bio yet."}

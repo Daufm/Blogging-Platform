@@ -39,7 +39,7 @@ const RegisterPage = () => {
 
     try {
       // Verify OTP and create user if valid
-      await axios.post(`${import.meta.env.VITE_API_URL}/users/verify-otp1`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/users/verify-otp`, {
         email,
         password,
         username,

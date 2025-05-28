@@ -16,6 +16,7 @@ dotenv.config();
 const app = express();
 
 // Enable CORS
+console.log("CORS enabled for:", process.env.CLIENT_URL);
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 // Middleware to parse JSON
 app.use(express.json());

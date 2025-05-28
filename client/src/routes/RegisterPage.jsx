@@ -23,7 +23,7 @@ const RegisterPage = () => {
 
     try {
       // Request OTP without creating user
-      await axios.post("http://localhost:3000/users/sendOtp", { email });
+      await axios.post(`${import.meta.env.VITE_API_URL}/users/sendOtp`, { email });
       setIsOtpSent(true);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send OTP");

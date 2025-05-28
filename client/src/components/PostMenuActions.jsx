@@ -3,8 +3,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode"; 
+import {Link } from 'react-router-dom';
 
-const PostMenuActions = ({ post }) => {
+
+const PostMenuActions = ({ post ,slug}) => {
   const navigate = useNavigate();
   const postId = post._id; // Get the post ID from the post object
   // Retrieve and decode the JWT
@@ -263,6 +265,15 @@ const PostMenuActions = ({ post }) => {
           )}
         </div>
       )}
+      {user.id === post.user?._id && (
+        <Link
+          to={`/edit/${slug}`}
+          className="flex items-center gap-2 py-2 text-sm cursor-pointe"
+        >
+          📝 Edit Post
+        </Link>
+      )}
+
       {user && post.user?._id !== user.id && !isAdmin && (
         <div className="flex items-center gap-2 py-2 text-sm cursor-pointer"
          onClick={() => handleReport(postId)}>

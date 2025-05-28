@@ -25,6 +25,7 @@ import ForgetPasswordPage from "./components/ForgetPass.jsx";
 import SupportAuthor from "./components/payment.jsx";
 import ThankYouPage from "./components/ThankYou.jsx";
 import FeaturedPosts from "./components/FeaturedPosts.jsx";
+import EditPost from "./pages/EditPost.jsx";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const router = createBrowserRouter([
       { path: "/", element: <Homepage /> },
       { path: "/posts", element: <PostListPage /> },
       { path: "/write", element: <Write /> },
+      {path: "/edit/:slug" ,element: <EditPost />},
       { path: "/authors/:username", element: <AuthorPage /> },
       { 
         path: "/profile/:username", 

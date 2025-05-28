@@ -10,6 +10,7 @@ import {
   getReports,
   dismissReport,
   postLike,
+  updatePost as UpdatePost,
 } from "../controllers/post.controller.js";
 import increaseVisit from "../middlewares/increaseVisit.js";
 import { authenticate } from "../middlewares/auth.js";
@@ -21,6 +22,7 @@ router.get("/upload-auth", uploadAuth);
 router.get("/", getPosts);
 router.get("/:slug", increaseVisit, getPost);
 router.post("/create", createPost);
+router.put("/update/:id", authenticate, UpdatePost); 
 router.post("/:id/like", authenticate, postLike);
 router.delete("/:id", deletePost);
 router.patch("/feature", featurePost);

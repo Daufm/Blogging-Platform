@@ -138,6 +138,50 @@ export const createPost = async (req, res) => {
   }
 };
 
+
+export const updatePost = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1]; 
+  if (!token) {
+    return res.status(401).json("Not authenticated!");
+  }
+
+  try{
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id; // Extract user ID from the token
+    const role = decoded.role || "user"; 
+
+    if (role !== "author" && role !== "admin") {
+      return res.status(403).json("You are not allowed to update a post!");
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json("Post not found!");
+    }
+
+    if (post.user.toString() !== userId && role !== "admin") {
+      return res.status(403).json("You can update only your posts!");
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body },
+      { new: true }
+    );
+
+    res.status(200).json(updatedPost);
+  }
+  catch(error){
+      console.error(error);
+      res.status(403).json("Invalid or expired token!");
+    }
+
+};
+
+
+
 export const deletePost = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1]; // Extract JWT from Authorization header
 

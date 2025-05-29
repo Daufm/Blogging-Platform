@@ -580,7 +580,7 @@ export const getPopularAuthors = async (req, res) => {
         followerCount: (user.followers || []).length, // Fallback added here
       }))
       .sort((a, b) => b.followerCount - a.followerCount)
-      .slice(0, 5);
+      .slice(0, 4);
 
     res.json(sorted);
   } catch (err) {

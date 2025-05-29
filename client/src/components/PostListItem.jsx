@@ -69,7 +69,7 @@ const PostListItem = ({ post }) => {
 
   return (
     <div className="w-full md:w-[60%] lg:w-[70%] pr-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow hover:shadow-md transition-all duration-300 border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow hover:shadow-md transition-all duration-300 border-0  flex flex-col h-full overflow-hidden">
         {/* Image */}
         {post.img && (
           <Link to={`/${post.slug}`} className="block h-44 overflow-hidden">
@@ -107,9 +107,9 @@ const PostListItem = ({ post }) => {
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{post.desc}</p>
 
           {/* Footer: author, like, read more */}
-          <div className="flex items-center justify-between mt-auto">
+          <div className="flex items-center mt-auto">
             {/* Author */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mr-6">
               {post.user?.img ? (
                 <Image
                   src={post.user.img}
@@ -137,7 +137,7 @@ const PostListItem = ({ post }) => {
               <button
                 onClick={handleLike}
                 aria-label={isLiked ? "Unlike post" : "Like post"}
-                className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition"
+                className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition mr-4"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

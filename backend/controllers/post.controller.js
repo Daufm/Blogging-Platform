@@ -116,7 +116,12 @@ export const createPost = async (req, res) => {
       return res.status(403).json("You are banned from creating posts!");
     }
     
-    let slug = req.body.title.replace(/ /g, "-").toLowerCase();
+   let slug = req.body.title
+  .toLowerCase()
+  .replace(/[^a-z0-9\s-]/g, "") // Remove all non-alphanumeric, non-space, non-dash
+  .replace(/\s+/g, "-")         // Replace spaces with dashes
+  .replace(/-+/g, "-")          // Replace multiple dashes with single dash
+  .replace(/^-+|-+$/g, "");    // Remove leading and trailing dashes
 
     let existingPost = await Post.findOne({ slug });
 

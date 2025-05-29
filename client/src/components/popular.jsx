@@ -20,32 +20,46 @@ const PopularAuthors = () => {
   }, []);
 
   return (
-<div className="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-xl shadow w-full max-w-md mx-auto">
-  <h2 className="text-lg sm:text-xl font-semibold mb-6 text-gray-800 dark:text-gray-100 text-center">
-    Popular Authors
-  </h2>
-
+<div className=" p-4 sm:p-6 bg-white dark:bg-gray-900   w-full max-w-md mx-auto">
+ 
   <ul className="flex flex-col gap-6">
+    <hr className="my-8 border-gray-300 dark:border-gray-700" />
     {authors.map((author) => (
       <li
         key={author._id}
-        className="bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-md p-5 flex flex-col items-center text-center hover:shadow-lg transition-shadow"
       >
-        <Image
-          src={author.img || "default-avatar.png"}
-          alt={author.username}
-          className="w-16 h-16 rounded-full object-cover border-2 border-indigo-500 mb-3"
-        />
-        <div className="mb-4">
-          <p className="font-semibold text-gray-800 dark:text-gray-200">{author.username}</p>
-          <p className="text-gray-500 text-xs">{author.followerCount} followers</p>
-        </div>
-        <Link
-          to={`/authors/${author.username}`}
-          className="mt-auto text-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-full transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          View Profile
-        </Link>
+        <div className="flex items-center justify-between p-2">
+  {/* Left Section: Profile Picture and Name */}
+  <div className="flex items-center space-x-3">
+   
+    {/* Author Name */}
+    <span className="font-semibold text-gray-800 dark:text-gray-200">
+      {author.username || 'Unknown Author'}
+      <p className="text-indigo-600">{author.followers ? author.followers.length : 0} Followers</p>
+    </span>
+  </div>
+
+  {/* Right Section: View Profile Button */}
+  <Link
+    to={`/authors/${author.username}`}
+    className="
+      text-sm
+      px-3 py-1.5 // Slightly smaller padding for a compact button
+      bg-transparent
+      border border-indigo-500
+      text-indigo-600
+      rounded-full
+      transition-colors duration-200 
+      focus:outline-none focus:ring-2 focus:ring-indigo-400
+      hover:bg-indigo-500 hover:text-white
+      dark:border-indigo-400 dark:text-indigo-400
+      dark:hover:bg-indigo-400 dark:hover:text-black
+    "
+  >
+    View Profile
+  </Link>
+</div>
+<hr className="my-8 border-gray-300 dark:border-gray-700" />
       </li>
     ))}
   </ul>

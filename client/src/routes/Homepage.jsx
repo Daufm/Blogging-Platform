@@ -115,18 +115,18 @@ const Homepage = () => {
               className="relative"
             >
               <motion.h2
-                className="my-8 text-3xl font-bold text-gray-700 dark:text-gray-300 flex items-center"
+                className="my-8 text-3xl font-medium text-gray-700 dark:text-gray-300 flex items-center"
                 initial={{ x: -50 }}
                 whileInView={{ x: 0 }}
                 transition={{ type: "spring" }}
                 viewport={{ once: true }}
               >
                 <span className="relative pb-2">
-                  Popular Authors
+                  Who to Follow
                   <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 via-purple-500 to-blue-600 rounded-full"></span>
                 </span>
               </motion.h2>
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-4">
                 <PopularAuthors />
               </div>
             </motion.div>

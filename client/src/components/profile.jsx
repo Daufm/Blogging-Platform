@@ -24,7 +24,6 @@ import {
   TextField,
   Typography,
   Tooltip,
-  Avatar,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -41,12 +40,11 @@ import {
   Verified as VerifiedIcon,
 } from "@mui/icons-material";
 import PostListItem from "../components/PostListItem";
-import Image from "./Image";
-import Upload from "../components/Upload";
-import ResetPassword from "./resetpass";
+import Image from "./Image"; // Assuming this is your custom Image component
+import Upload from "../components/Upload"; // Assuming this is your custom Upload component
+import ResetPassword from "./resetpass"; // Assuming this is your ResetPassword component
 
-
-
+// --- API Calls ---
 const fetchUserData = async (username) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile/${username}`);
   return res.data;
@@ -65,6 +63,7 @@ const updateUserProfile = async (updatedData) => {
   return res.data;
 };
 
+// --- UserProfile Component ---
 const UserProfile = () => {
   const { username } = useParams();
   const queryClient = useQueryClient();
@@ -72,41 +71,57 @@ const UserProfile = () => {
   const isOwner = loggedInUser?.username === username;
   const userId = loggedInUser?.id;
 
+  // Fetch user data using React Query
   const { isLoading, error, data } = useQuery({
     queryKey: ["user", username],
     queryFn: () => fetchUserData(username),
   });
 
+  // Mutation for updating user profile
   const mutation = useMutation({
     mutationFn: updateUserProfile,
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
       queryClient.invalidateQueries(["user", username]);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
+      if (isOwner) {
+        localStorage.setItem("user", JSON.stringify({
+          ...updatedUser,
+        
+        }));
+      }
+      //update the route to reflect the new username if it was changed
+      if (updatedUser.username !== username) {
+        window.location.href = `/profile/${updatedUser.username}`; 
+      }
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to update profile.");
     },
   });
 
+  // --- State Management ---
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState("");
-  const [img, setImg] = useState(null);
-  const [username1, setUsername] = useState("");
+  const [img, setImg] = useState(null); // State for new image file path
+  const [username1, setUsername] = useState(""); // State for editing username
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(0); // Upload progress
 
+  // Populate form fields when data is loaded
   useEffect(() => {
-    if (data?.user) {
-      setBio(data.user.bio || "");
-      setUsername(data.user.username);
+    if (data) {
+      setBio(data.bio || "");
+      setUsername(data.username);
+      // setImg(data.img || null); // Don't set `img` here directly, as it's for new upload
     }
   }, [data]);
 
+  // --- Handlers ---
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    window.location.href = "/login";
+    window.location.href = "/login"; // Full page reload to ensure state reset
   };
 
   const handleEditProfile = () => setIsEditing(true);
@@ -115,10 +130,14 @@ const UserProfile = () => {
     e.preventDefault();
     if (!bio.trim()) return toast.error("Bio cannot be empty.");
     if (!username1.trim()) return toast.error("Username cannot be empty.");
+
+    // Determine the image to send: new uploaded image or existing one
     const updatedData = {
       bio,
       username: username1,
-      img: img?.filePath || data.user.img,
+      // If `img` state holds a new filePath from upload, use it.
+      // Otherwise, use the `data.img` which is the existing one.
+      img: img?.filePath || data.img,
     };
     mutation.mutate(updatedData);
   };
@@ -141,6 +160,7 @@ const UserProfile = () => {
     }
   };
 
+  // Helper to get MUI Chip color based on role
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
@@ -148,10 +168,11 @@ const UserProfile = () => {
       case "author":
         return "success";
       default:
-        return "primary";
+        return "primary"; // Or 'default' or a specific light color for 'user'
     }
   };
 
+  // --- Loading and Error States ---
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -177,13 +198,16 @@ const UserProfile = () => {
       </Container>
     );
   }
-
+ 
+// console.log(data)
+  // --- Main Render ---
   return (
+
     <Box
       sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}
       className="dark:bg-gray-900 bg-[#f6f8fa] transition-colors duration-300"
     >
-      {/* Profile Header */}
+      {/* Profile Header Section */}
       <Container maxWidth="md">
         <Paper
           elevation={3}
@@ -191,26 +215,21 @@ const UserProfile = () => {
             p: { xs: 3, md: 5 },
             mb: 4,
             borderRadius: 4,
-            background: "none", // Remove MUI background so Tailwind can take over
+            background: "none", // Keeps background transparent or based on parent
             boxShadow: 6,
           }}
           className="dark:bg-gray-900 dark:text-white bg-white transition-colors duration-300"
         >
           <Grid container spacing={4} alignItems="center">
+            {/* Profile Picture Column */}
             <Grid item xs={12} md={4}>
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <Image
-                  src={data.user.img || "/default-avatar.png"}
-                  alt={data.user.username}
-                    w= {150}
-                    h= {150}
-                  className={
-                    {border: 4,
-                    borderColor: "primary.main",
-                    boxShadow: 4,
-                    borderRadius: "50%",
-                    mb: 2,}
-                  }
+                  src={data.user?.img || "/default-avatar.png"} // Fallback image
+                  alt={data.user?.username}
+                  w={150}
+                  h={150}
+                  className="rounded-full border-4 border-primary-main shadow-lg mb-2 object-cover"
                 />
                 {isOwner && isEditing && (
                   <Box mt={1}>
@@ -220,9 +239,9 @@ const UserProfile = () => {
                         size="small"
                         startIcon={<UploadIcon />}
                         sx={{
-                          bgcolor: "background.paper",
+                          bgcolor: "background.paper", // Ensure button background is visible
                           color: "primary.main",
-                          "&:hover": { bgcolor: "background.paper" },
+                          "&:hover": { bgcolor: "background.paper", opacity: 0.9 }, // Slight hover effect
                         }}
                       >
                         Change Photo
@@ -232,41 +251,53 @@ const UserProfile = () => {
                 )}
               </Box>
             </Grid>
+
+            {/* User Info Column */}
             <Grid item xs={12} md={8}>
               <Stack spacing={2}>
+                {/* Username, Role, and Verified Icon */}
                 <Box display="flex" alignItems="center" gap={1}>
                   <Typography variant="h4" fontWeight={700}>
-                    {data.user.username}
+                    {data.user?.username}
                   </Typography>
-                  {data.user.role === "admin" && (
+                  {data.user?.role === "admin" && (
                     <Tooltip title="Verified Admin">
                       <VerifiedIcon color="secondary" />
                     </Tooltip>
                   )}
                   <Chip
-                    label={data.user.role || "User"}
-                    color={getRoleColor(data.user.role)}
+                    label={data.user?.role || "User"} // Display 'User' if role is not defined
+                    color={getRoleColor(data.role)}
                     size="small"
                     sx={{ ml: 1, fontWeight: 600 }}
                   />
                 </Box>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: 18 }}  className="dark:text-gray-300">
-                  {data.user.bio || (
+
+               
+
+                {/* Bio */}
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: 18 }} className="dark:text-gray-300">
+                  {data.user?.bio || (
                     <span style={{ color: "#aaa" }}>No bio yet. Add something about yourself!</span>
                   )}
                 </Typography>
-                {data.user.website && (
+
+                {/* Website Link */}
+                {data.website && (
                   <Button
-                    href={data.user.website}
+                    href={data.website}
                     target="_blank"
                     rel="noopener noreferrer"
                     startIcon={<LinkIcon />}
                     sx={{ alignSelf: "flex-start", fontWeight: 500 }}
                   >
-                    {data.user.website.replace(/(^\w+:|^)\/\//, "")}
+                    {/* Display clean URL without protocol */}
+                    {data.website.replace(/(^\w+:|^)\/\//, "")}
                   </Button>
                 )}
-                <Stack direction="row" spacing={2} mt={2}>
+
+                {/* Action Buttons (Edit Profile, Logout) */}
+                <Stack direction="row" spacing={2} mt={2} flexWrap="wrap">
                   {isOwner && (
                     <>
                       <Button
@@ -295,11 +326,11 @@ const UserProfile = () => {
         </Paper>
       </Container>
 
-      {/* Main Content */}
+      {/* Main Content Section */}
       <Container maxWidth="md">
         {isOwner && (
           <Stack direction="row" spacing={2} sx={{ mb: 4 }} flexWrap="wrap">
-            {data.user.role === "admin" && (
+            {data.role === "admin" && (
               <Button
                 component={Link}
                 to="/admin_dashboard"
@@ -311,7 +342,7 @@ const UserProfile = () => {
                 Admin Dashboard
               </Button>
             )}
-            {data.user.role !== "admin" && data.user.role !== "author" && (
+            {data.role !== "admin" && data.role !== "author" && (
               <Button
                 onClick={handleAuthorRequest}
                 variant="contained"
@@ -340,19 +371,19 @@ const UserProfile = () => {
         )}
 
         {/* Posts Section */}
-        <Card elevation={2} sx={{ borderRadius: 3  }} className="dark:bg-gray-900 bg-white transition-colors duration-300">
+        <Card elevation={2} sx={{ borderRadius: 3 }} className="dark:bg-gray-900 bg-white transition-colors duration-300">
           <CardHeader
             title={
               <Typography variant="h6" component="h2" fontWeight={700}>
                 <Box display="flex" alignItems="center" gap={1} className="dark:text-gray-300">
                   <ArticleIcon color="primary" />
-                  Posts by {data.user.username}
+                  Posts by {data.username}
                 </Box>
               </Typography>
             }
           />
-          <Divider />
-          {data.posts.length === 0 ? (
+          <Divider /> {/* Horizontal line divider */}
+          {data.posts && data.posts.length === 0 ? (
             <CardContent>
               <Box
                 display="flex"
@@ -366,7 +397,7 @@ const UserProfile = () => {
                   No posts yet
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  When {data.user.username} creates posts, they'll appear here.
+                  When {data.username} creates posts, they'll appear here.
                 </Typography>
                 {isOwner && (
                   <Button
@@ -383,7 +414,7 @@ const UserProfile = () => {
             </CardContent>
           ) : (
             <Box>
-              {data.posts.map((post) => (
+              {data.posts && data.posts.map((post) => (
                 <PostListItem key={post._id} post={post} />
               ))}
             </Box>
@@ -393,9 +424,9 @@ const UserProfile = () => {
 
       {/* Edit Profile Modal */}
       <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth className="dark:text-white">
-        <DialogTitle className="dark : bg-slate-900">Edit Profile</DialogTitle>
+        <DialogTitle className="dark:bg-slate-900">Edit Profile</DialogTitle>
         <form onSubmit={handleSaveProfile} className="dark:bg-[#18191A] dark:text-white bg-[#f6f8fa] transition-colors duration-300">
-          <DialogContent >
+          <DialogContent>
             <Stack spacing={3}>
               <TextField
                 label="Username"
@@ -405,6 +436,24 @@ const UserProfile = () => {
                 margin="normal"
                 inputProps={{ maxLength: 32 }}
                 required
+                // Add dark mode styling if needed for TextField
+                sx={{
+                  '& .MuiInputBase-input': {
+                    color: 'inherit', // Inherit text color
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary', // Label color
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'divider', // Border color
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main', // Hover border color
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main', // Focused border color
+                  },
+                }}
               />
               <TextField
                 label="Bio"
@@ -416,6 +465,23 @@ const UserProfile = () => {
                 margin="normal"
                 inputProps={{ maxLength: 200 }}
                 helperText={`${bio.length}/200`}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    color: 'inherit',
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'divider',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                  },
+                }}
               />
               <Box>
                 <Typography variant="subtitle2" gutterBottom>

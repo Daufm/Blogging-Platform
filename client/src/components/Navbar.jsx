@@ -1,59 +1,56 @@
-import { useState, useEffect } from "react";
-import Image from "./Image";
-import Search from "./Search";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useContext } from "react";
 import { AuthContext } from "../utils/AuthContext";
+import Image from "./Image"; 
+import Search from "./Search"; 
+
+
 
 
 const Navbar = () => {
- const { user , logout} = useContext(AuthContext);
-
-
+  const { user, logout } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
- // const [user, setUser] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "system");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
-    
-    // User data and token handling
-    //const storedUser = localStorage.getItem("user");
+
+    // Token expiry check and redirect to login if expired
     const token = localStorage.getItem("token");
-    const decodedToken = token ? JSON.parse(atob(token.split(".")[1])) : null;
-    const expirationTime = decodedToken?.exp * 1000;
-    const currentTime = Date.now();
-
-    if (expirationTime && expirationTime < currentTime) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      navigate("/login");
+    if (token) {
+      try {
+        const decodedToken = JSON.parse(atob(token.split(".")[1]));
+        const expirationTime = decodedToken.exp * 1000;
+        if (Date.now() > expirationTime) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
+        }
+      } catch {
+        // invalid token format, logout
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      }
     }
-
-    // if (storedUser) {
-    //   setUser(JSON.parse(storedUser));
-    // }
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navigate]);
 
-  const renderProfile = () => (
-    <Link to={`/profile/${user.username}`} className="flex items-center gap-2 group">
-      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <Image
-          src={user.img|| "/default-avatar.png"}
-          alt="profile"
-          className="w-10 h-10 rounded-full object-cover border-2 border-transparent group-hover:border-indigo-500 transition-all duration-300"
-        />
-      </motion.div>
-    </Link>
-  );
+  useEffect(() => {
+    if (theme === "system") {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", isDark);
+    } else {
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -62,23 +59,17 @@ const Navbar = () => {
     { path: "/about", label: "About" },
   ];
 
+  // Variants for framer-motion animations
   const mobileNavVariants = {
     hidden: { x: "100%" },
-    visible: { 
+    visible: {
       x: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 100,
-        damping: 20
-      }
+      transition: { type: "spring", stiffness: 100, damping: 20 },
     },
-    exit: { 
+    exit: {
       x: "100%",
-      transition: { 
-        ease: "easeInOut",
-        duration: 0.3
-      }
-    }
+      transition: { ease: "easeInOut", duration: 0.3 },
+    },
   };
 
   const navItemVariants = {
@@ -86,16 +77,34 @@ const Navbar = () => {
     visible: (i) => ({
       opacity: 1,
       y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5
-      }
-    })
+      transition: { delay: i * 0.1, duration: 0.5 },
+    }),
   };
 
+  const handleThemeChange = (selectedTheme) => {
+    setTheme(selectedTheme);
+    setThemeMenuOpen(false);
+  };
+
+  const renderProfile = () => (
+    <Link to={`/profile/${user.username}`} className="flex items-center gap-2 group">
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <Image
+          src={user.img || "/default-avatar.png"}
+          alt="profile"
+          className="w-10 h-10 rounded-full object-cover border-2 border-transparent group-hover:border-indigo-500 transition-all duration-300"
+        />
+      </motion.div>
+    </Link>
+  );
+
   return (
-    <motion.div 
-      className={`fixed w-full z-50 ${scrolled ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm" : "bg-transparent"} transition-all duration-300`}
+    <motion.div
+      className={`fixed w-full z-50 ${
+        scrolled
+          ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm"
+          : "bg-white/80 dark:bg-gray-900/90 backdrop-blur-md"
+      } transition-all duration-300`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
@@ -104,19 +113,19 @@ const Navbar = () => {
         <div className="w-full h-16 md:h-20 flex items-center justify-between">
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-3">
-            <motion.div 
+            <motion.div
               whileHover={{ rotate: 15, scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <Image 
-                src="logo.png" 
-                alt="BlogSphere Logo" 
-                w={40} 
-                h={40} 
+              <Image
+                src="logo.png"
+                alt="BlogSphere Logo"
+                w={40}
+                h={40}
                 className="drop-shadow-lg"
               />
             </motion.div>
-            <motion.span 
+            <motion.span
               className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -126,17 +135,16 @@ const Navbar = () => {
             </motion.span>
           </Link>
 
-          {/* separator */}
+          {/* Separator */}
           <div className="h-10 w-px bg-gradient-to-b from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-      
-          {/* search */}
+
+          {/* Search */}
           <div className="transition-transform duration-200 hover:scale-105">
             <Search />
           </div>
 
           {/* MOBILE MENU */}
           <div className="md:hidden">
-            {/* MOBILE BUTTON */}
             <motion.button
               className="relative z-50 p-2"
               onClick={() => setOpen((prev) => !prev)}
@@ -146,7 +154,11 @@ const Navbar = () => {
               <div className="flex flex-col gap-1.5 w-6">
                 <motion.span
                   className="h-[2px] w-full bg-gray-800 dark:bg-white"
-                  animate={open ? { rotate: 45, y: 7, width: "100%" } : { rotate: 0, y: 0, width: "100%" }}
+                  animate={
+                    open
+                      ? { rotate: 45, y: 7, width: "100%" }
+                      : { rotate: 0, y: 0, width: "100%" }
+                  }
                 />
                 <motion.span
                   className="h-[2px] w-full bg-gray-800 dark:bg-white"
@@ -154,12 +166,15 @@ const Navbar = () => {
                 />
                 <motion.span
                   className="h-[2px] w-full bg-gray-800 dark:bg-white"
-                  animate={open ? { rotate: -45, y: -7, width: "100%" } : { rotate: 0, y: 0, width: "100%" }}
+                  animate={
+                    open
+                      ? { rotate: -45, y: -7, width: "100%" }
+                      : { rotate: 0, y: 0, width: "100%" }
+                  }
                 />
               </div>
             </motion.button>
 
-            {/* MOBILE LINK LIST */}
             <AnimatePresence>
               {open && (
                 <motion.div
@@ -177,10 +192,10 @@ const Navbar = () => {
                       animate="visible"
                       variants={navItemVariants}
                     >
-                      <Link 
-                        to={link.path} 
+                      <Link
+                        to={link.path}
                         onClick={() => setOpen(false)}
-                        className="relative text-2xl font-medium text-gray-900    hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        className="relative text-2xl font-medium text-gray-900 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                       >
                         <span className="relative">
                           {link.label}
@@ -188,9 +203,9 @@ const Navbar = () => {
                         </span>
                       </Link>
                     </motion.div>
-                  ))} 
+                  ))}
 
-                    {/* Write Button */}
+                  {/* Write Button */}
                   <motion.div
                     className="flex justify-end px-4 py-2"
                     initial={{ opacity: 0, y: -20 }}
@@ -224,18 +239,15 @@ const Navbar = () => {
                     </Link>
                   </motion.div>
 
-                  
-
                   <motion.div
                     custom={navLinks.length}
                     initial="hidden"
                     animate="visible"
                     variants={navItemVariants}
                   >
-
                     {user ? (
-                      <Link 
-                        to={`/profile/${user.username}`} 
+                      <Link
+                        to={`/profile/${user.username}`}
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-3"
                       >
@@ -247,8 +259,8 @@ const Navbar = () => {
                         <span className="text-lg font-medium">My Profile</span>
                       </Link>
                     ) : (
-                      <Link 
-                        to="/login" 
+                      <Link
+                        to="/login"
                         onClick={() => setOpen(false)}
                         className="relative"
                       >
@@ -257,12 +269,8 @@ const Navbar = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          Login 👋
+                          Login
                         </motion.button>
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-600"></span>
-                        </span>
                       </Link>
                     )}
                   </motion.div>
@@ -271,34 +279,32 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
 
-          {/* DESKTOP MENU */}
-          <div className="hidden md:flex items-center gap-6 xl:gap-8">
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex items-center gap-8 font-medium text-lg">
             {navLinks.map((link) => (
-              <Link 
-                key={link.path} 
+              <Link
                 to={link.path}
-                className="relative group font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                key={link.path}
+                className="group relative text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               >
-                <span className="relative">
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full" />
-                </span>
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
 
-            {/* Write Button - Desktop */}
+            {/* Write Button */}
             <Link
               to="write"
-              className="relative group hidden md:block"
+              className="relative group"
               aria-label="Write a post"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-              <div className="relative flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="relative flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
-                  width="20"
-                  height="20"
+                  width="24"
+                  height="24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -313,24 +319,92 @@ const Navbar = () => {
               </div>
             </Link>
 
+            {/* User Profile or Login */}
             {user ? (
               renderProfile()
             ) : (
-              <Link to="/login" className="relative">
-                <motion.button
-                  className="py-2 px-6 rounded-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium shadow-lg hover:shadow-xl transition-all"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Login 👋
-                </motion.button>
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
-                </span>
+              <Link to="/login">
+                <button className="py-2 px-6 rounded-full bg-indigo-600 text-white font-semibold shadow-md hover:bg-indigo-700 transition-colors">
+                  Login
+                </button>
               </Link>
             )}
-          </div>
+
+            {/* Theme Toggle */}
+            <div className="relative">
+              <button
+                onClick={() => setThemeMenuOpen((prev) => !prev)}
+                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle theme menu"
+              >
+                {theme === "light" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-6 h-6 text-yellow-500"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 3v1m0 16v1m8.485-9H21m-16 0H3m14.364 5.364l-.707-.707M7.05 7.05l-.707-.707m12.02 12.02l-.707-.707M7.05 16.95l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"
+                    />
+                  </svg>
+                )}
+                {theme === "dark" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-6 h-6 text-gray-100"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"
+                    />
+                  </svg>
+                )}
+                {theme === "system" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-6 h-6 text-gray-600"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v1m0 14v1m8-8h1M3 12H2m15.364-5.364l-.707-.707M7.05 16.95l-.707-.707m12.02 0l-.707-.707M7.05 7.05l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                )}
+              </button>
+
+              {/* Theme Menu */}
+              {themeMenuOpen && (
+                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50">
+                  {["light", "dark", "system"].map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => handleThemeChange(mode)}
+                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-indigo-100 dark:hover:bg-indigo-700 ${
+                        theme === mode ? "font-semibold text-indigo-600" : ""
+                      }`}
+                    >
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </nav>
         </div>
       </div>
     </motion.div>

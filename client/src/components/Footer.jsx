@@ -26,7 +26,7 @@ const Footer = () => {
       title: "Company",
       links: [
         { name: "About Us", url: "/about" },
-        { name: "Careers", url: "/careers" },
+        
         { name: "Blog", url: "/blog" },
         { name: "Press", url: "/press" }
       ]
@@ -35,8 +35,6 @@ const Footer = () => {
       title: "Resources",
       links: [
         { name: "Help Center", url: "/help" },
-        { name: "Tutorials", url: "/tutorials" },
-        { name: "API Docs", url: "/api-docs" },
         { name: "Community", url: "/community" }
       ]
     },
@@ -46,7 +44,7 @@ const Footer = () => {
         { name: "Privacy Policy", url: "/privacy" },
         { name: "Terms of Service", url: "/terms" },
         { name: "Cookie Policy", url: "/cookies" },
-        { name: "GDPR", url: "/gdpr" }
+        
       ]
     }
   ];
@@ -54,7 +52,7 @@ const Footer = () => {
   const contactInfo = [
     { icon: <FaEnvelope />, text: "contact@blogsphere.com", url: "mailto:contact@blogsphere.com" },
     { icon: <FaPhoneAlt />, text: "+1 (555) 123-4567", url: "tel:+15551234567" },
-    { icon: <FaMapMarkerAlt />, text: "123 Tech Street, Silicon Valley, CA", url: "https://maps.google.com" }
+    { icon: <FaMapMarkerAlt />, text: "123 UoG ,", url: "https://maps.google.com" }
   ];
 
   return (
@@ -130,10 +128,13 @@ const Footer = () => {
 
           {/* Newsletter */}
           <div className="space-y-4">
+            <div>  
             <h4 className="text-lg font-semibold text-white">Subscribe to our newsletter</h4>
             <p className="text-gray-400">
               Get the latest updates, news and product offers.
             </p>
+            </div>
+
             <form className="mt-4 space-y-3">
               <input
                 type="email"

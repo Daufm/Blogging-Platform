@@ -17,7 +17,7 @@ const MainLayout = () => {
   const shouldHideNavbar = hideNavbarOn.includes(location.pathname);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen dark:bg-gray-900 dark:text-gray-200">
       {/* Content wrapper with padding */}
       <div className="flex-grow">
         {!shouldHideNavbar && <Navbar />}

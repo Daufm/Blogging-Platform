@@ -41,7 +41,7 @@ const PopularAuthors = () => {
           <p className="text-gray-500 text-xs">{author.followerCount} followers</p>
         </div>
         <Link
-          to={`/profile/${author.username}`}
+          to={`/authors/${author.username}`}
           className="mt-auto text-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-full transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           View Profile

@@ -16,6 +16,7 @@ const authenticator = async () => {
     }
 
     const data = await response.json();
+    console.log("Authentication data:", data);
     const { signature, expire, token } = data;
     return { signature, expire, token };
   } catch (error) {
@@ -23,7 +24,7 @@ const authenticator = async () => {
   }
 };
 
-const Upload = ({ children, type, setProgress, setData }) => {
+const Upload = ({ children, type, setProgress = () => {}, setData }) => {
   const ref = useRef(null);
 
   const onError = (err) => {

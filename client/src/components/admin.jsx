@@ -99,13 +99,118 @@ const MainContent = () => (
   </main>
 );
 
-const Dashboard = () => (
-  <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg">
-    <h1 className="text-3xl font-bold mb-2">Welcome back, Admin! 🎉</h1>
-    <p className="text-lg">Manage your content, users, and settings with ease. Let&apos;s keep everything running smoothly!</p>
-    <p className="mt-4 text-sm opacity-80">Your command center for full control and insights.</p>
+const Dashboard = () => {
+  const [userCount, setUserCount] = React.useState(0);
+  const [postCount, setPostCount] = React.useState(0);
+
+  React.useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/users/all`)
+      .then(res => setUserCount(res.data.length))
+      .catch(() => setUserCount(0));
+  }, []);
+
+  React.useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/posts/all`)
+      .then(res => setPostCount(res.data.totalPosts))
+      .catch(() => setPostCount(0));
+  }, []);
+
+  return (
+    <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg relative overflow-hidden">
+      <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+        Welcome back, Admin! <span className="animate-bounce">🎉</span>
+      </h1>
+      <p className="text-lg">Manage your content, users, and settings with ease. Let&apos;s keep everything running smoothly!</p>
+      <p className="mt-4 text-sm opacity-80">Your command center for full control and insights.</p>
+
+      {/* Magic: Animated Confetti */}
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <Confetti />
+      </div>
+
+      {/* Magic: Quick Stats */}
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MagicStat label="Active Users" value={userCount} icon="🟢" />
+        <MagicStat label="Total Posts" value={postCount} icon="📝" />
+        <MagicStat label="Reports" value={Math.floor(Math.random() * 10)} icon="🚩" />
+        <MagicStat label="New Signups" value={Math.floor(Math.random() * 50)} icon="✨" />
+      </div>
+
+      {/* Magic: Motivational Quote */}
+      <div className="mt-8 bg-white/20 rounded-xl p-4 text-center text-lg italic shadow">
+        <RandomQuote />
+      </div>
+
+      {/* Magic: Live Clock */}
+      <div className="absolute top-6 right-8 bg-white/20 px-4 py-2 rounded-lg text-lg font-mono shadow">
+        <LiveClock />
+      </div>
+    </div>
+  );
+};
+
+// MagicStat component
+const MagicStat = ({ label, value, icon }) => (
+  <div className="bg-white/20 rounded-xl p-4 flex flex-col items-center shadow hover:scale-105 transition">
+    <span className="text-3xl mb-2">{icon}</span>
+    <span className="text-2xl font-bold">{value}</span>
+    <span className="text-sm mt-1">{label}</span>
   </div>
 );
+
+// Confetti animation (simple CSS-based)
+const Confetti = () => (
+  <div className="w-full h-full pointer-events-none">
+    {[...Array(20)].map((_, i) => (
+      <span
+        key={i}
+        className="absolute block w-2 h-2 rounded-full"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          background: `hsl(${Math.random() * 360}, 80%, 60%)`,
+          animation: `confetti-fall ${2 + Math.random() * 2}s linear infinite`,
+          animationDelay: `${Math.random() * 2}s`,
+        }}
+      />
+    ))}
+    <style>{`
+      @keyframes confetti-fall {
+        0% { transform: translateY(-20px) scale(1); opacity: 1; }
+        100% { transform: translateY(400px) scale(0.8); opacity: 0; }
+      }
+    `}</style>
+  </div>
+);
+
+// LiveClock component
+const LiveClock = () => {
+  const [now, setNow] = React.useState(new Date());
+  React.useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return <span>{now.toLocaleTimeString()}</span>;
+};
+
+// RandomQuote component
+const quotes = [
+  "Great leaders inspire greatness in others.",
+  "Success is not the key to happiness. Happiness is the key to success.",
+  "The best way to predict the future is to create it.",
+  "Every day is a new opportunity to grow and improve.",
+  "Stay positive, work hard, make it happen.",
+];
+const RandomQuote = () => {
+  const [quote, setQuote] = React.useState(quotes[Math.floor(Math.random() * quotes.length)]);
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
+  return <span>{quote}</span>;
+};
 
 
 const Approved =()=>{
@@ -437,16 +542,17 @@ const Users1 = () => {
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/users/all`)
       .then((res) => {
-        console.log("Fetched users:", res.data);
+        
         setUsers(res.data); 
       })
       .catch(console.error);
   }, []);
 
+
   const handleDelete = async (userId) => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL}/users/${userId}`);
-      setUsers((prevUsers) => prevUsers.filter(user => user.id !== userId));
+      setUsers((prevUsers) => prevUsers.filter(user => user._id !== userId));
     } catch (error) {
       console.error("Error deleting user", error);
     }
@@ -478,6 +584,7 @@ const Users1 = () => {
       console.error("Error banning user", error);
     }
   };
+  
 
   return (
     <section>
@@ -495,6 +602,7 @@ const Users1 = () => {
 
   <h2 className="text-xl font-semibold mt-8 mb-4">Users</h2>
   <ul className="space-y-2">
+    
     {users
       .filter((user) => user.role !== "admin")
       .map((user) => (
@@ -515,7 +623,9 @@ const Users1 = () => {
               {user.isBanned ? 'Unban' : 'Ban'}
             </button>
           </div>
+
         </li>
+       
       ))}
   </ul>
     </section>

@@ -198,7 +198,7 @@ const handleFollow = async (authorId) => {
                     : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}
                 `}
               >
-                {isFollowing ? "Follow" : "Following"}
+                {isFollowing ? "Following" : "Follow"}
               </button>
 
 

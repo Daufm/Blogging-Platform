@@ -126,7 +126,7 @@ const Homepage = () => {
                   <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 via-purple-500 to-blue-600 rounded-full"></span>
                 </span>
               </motion.h2>
-              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
                 <PopularAuthors />
               </div>
             </motion.div>

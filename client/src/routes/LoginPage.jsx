@@ -30,9 +30,17 @@ const LoginPage = () => {
         //  the API returns a token 
         const {token, user} = response.data;
         login(user, token);
-        console.log(user);
+        console.log("user", user);
 
-        //redirect to home page
+        //check if the user is an admin
+        if (user.role === "admin") {
+          //redirect to admin dashboard
+          navigate("/admin_dashboard");
+          return;
+        }
+         
+       
+        //otherwise redirect to home page
         navigate("/");
         
       }

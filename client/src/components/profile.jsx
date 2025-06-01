@@ -199,7 +199,7 @@ const UserProfile = () => {
     );
   }
  
-// console.log(data)
+ console.log("UserProfile data:", data); // Debugging line to check fetched data
   // --- Main Render ---
   return (
 
@@ -330,7 +330,7 @@ const UserProfile = () => {
       <Container maxWidth="md">
         {isOwner && (
           <Stack direction="row" spacing={2} sx={{ mb: 4 }} flexWrap="wrap">
-            {data.role === "admin" && (
+            {data.user?.role === "admin" && (
               <Button
                 component={Link}
                 to="/admin_dashboard"
@@ -342,7 +342,7 @@ const UserProfile = () => {
                 Admin Dashboard
               </Button>
             )}
-            {data.role !== "admin" && data.role !== "author" && (
+            {data.user?.role  === "user" &&  (
               <Button
                 onClick={handleAuthorRequest}
                 variant="contained"
@@ -414,8 +414,9 @@ const UserProfile = () => {
             </CardContent>
           ) : (
             <Box>
+              {console.log("Posts data:", data.posts)} {/* Debugging line to check posts data */}
               {data.posts && data.posts.map((post) => (
-                <PostListItem key={post._id} post={post} />
+                <PostListItem key={post._id} post={post}  />
               ))}
             </Box>
           )}

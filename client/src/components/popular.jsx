@@ -19,10 +19,10 @@ const PopularAuthors = () => {
     fetchPopularAuthors();
   }, []);
 
-  return (
-<div className=" p-4 sm:p-6 bg-white dark:bg-gray-900   w-full max-w-md mx-auto">
+return (
+    <div className=" p-4 sm:p-6 bg-white dark:bg-gray-800   w-full max-w-md mx-auto">
  
-  <ul className="flex flex-col gap-6">
+   <ul className="flex flex-col gap-6">
     <hr className="my-8 border-gray-300 dark:border-gray-700" />
     {authors.map((author) => (
       <li

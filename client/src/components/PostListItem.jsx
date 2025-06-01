@@ -67,6 +67,8 @@ const PostListItem = ({ post }) => {
     }
   };
 
+
+
   return (
     <div className="w-full md:w-[60%] lg:w-[70%] pr-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow hover:shadow-md transition-all duration-300 border-0  flex flex-col h-full overflow-hidden">

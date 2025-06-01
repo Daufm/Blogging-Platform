@@ -10,6 +10,7 @@ import {
   getReports,
   dismissReport,
   postLike,
+  getAllPosts,
   updatePost as UpdatePost,
 } from "../controllers/post.controller.js";
 import increaseVisit from "../middlewares/increaseVisit.js";
@@ -20,6 +21,7 @@ const router = express.Router();
 router.get("/upload-auth", uploadAuth);
 
 router.get("/", getPosts);
+router.get("/all", getAllPosts);
 router.get("/:slug", increaseVisit, getPost);
 router.post("/create", createPost);
 router.put("/update/:id", authenticate, UpdatePost); 

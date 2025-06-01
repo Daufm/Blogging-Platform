@@ -402,7 +402,7 @@ export const getUserProfile = async (req, res)=>{
     }
 
     // Find posts created by the user
-    const posts = await Post.find({ user: user._id }).select("title desc slug img createdAt");
+    const posts = await Post.find({ user: user._id }).select("title desc slug img createdAt").populate("user", "username img");
 
     res.status(200).json({ user, posts });
   } catch (error) {

@@ -87,6 +87,13 @@ export const getPost = async (req, res) => {
   res.status(200).json(post);
 };
 
+export const getAllPosts = async (req, res) => {
+
+  const totalPosts = await Post.countDocuments();
+
+
+  res.status(200).json({ totalPosts });
+}
 
 //create a post
 export const createPost = async (req, res) => {

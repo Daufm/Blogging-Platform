@@ -54,7 +54,7 @@ const AuthorPage = () => {
     );
 
   const handleSupportAuthor = () => {
-    navigate("/support");
+    navigate("/support/" + data.authorData._id);
   };
 
   const handlePaymentMethod = () => {
@@ -117,19 +117,8 @@ const handleFollow = async (authorId) => {
                 onClick={handleSupportAuthor}
                 className="flex-shrink-0 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
               >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5" 
-                  viewBox="0 0 20 20" 
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 4a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2V8a2 2 0 00-2-2h-2.5a1 1 0 01-.8-.4l-1.5-2A1 1 0 0010 3H6a1 1 0 00-.8.4l-1.5 2A1 1 0 014 5H2zm10 7h-1v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H6v1a1 1 0 11-2 0v-1H3V6h1v1a1 1 0 102 0V6h1v1a1 1 0 102 0V6h1v1a1 1 0 102 0V6h1v5z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Support Author
+               
+                 💖 Support {data.authorData.username}
               </button>
 
               <button

@@ -1,28 +1,42 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import telebirrLogo from '../assets/Telebirr.jpeg';
 
 
+// const params = useParams();
+// console.log("Params:", params);
 
-const SupportAuthor = () => {
+
+const SupportAuthor = (  ) => {
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('telebirr');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+   const { authorId } = useParams();
+
+
+
+  
+
+
+ 
 
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
   const username = user?.username || 'Guest';
-
+ 
+//fuadmohammed368@gmail.com
   const presetAmounts = [50, 100, 200, 500, 1000];
 
   const paymentMethods = [
     {
-      id: 'telebirr',
-      name: 'Telebirr',
-      logo: '../assets/Telebirr.jpeg',
-      description: 'Send via Telebirr mobile money'
+      id: 'chapa',
+      name: 'Chapa',
+      logo: telebirrLogo,
+      description: 'Send via chapa mobile money'
     },
     {
       id: 'bank',
@@ -34,9 +48,17 @@ const SupportAuthor = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting donation:', { amount, email, selectedMethod, message });
+
+
+
+    console.log('Submitting donation:', { amount, email, selectedMethod, message , authorId, username });
     // Send data to your backend endpoint
     try {
+        if (authorId === undefined || authorId === null) {
+          alert('Author ID is missing. Please try again later.');
+          return;
+        }
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/payment/donate`, {
         method: 'POST',
         headers: {
@@ -48,13 +70,24 @@ const SupportAuthor = () => {
           email,
           method: selectedMethod,
           message,
+          authorId: authorId,
         })
       });
+
       const result = await response.json();
      
+      console.log('Chapa payment result:', result);
 
-    // Redirect to the Chapa checkout URL
-    window.location.href = result.checkout_url;
+
+      // Redirect to the Chapa checkout URL
+      if(result.checkout_url){
+        window.open(result.checkout_url, '_blank');
+      }
+      else{
+        alert('Failed to initiate payment. Please try again later.');
+        console.error('Payment initiation error:', result);
+      }
+    
     } catch (error) {
       alert('Failed to send donation. Please try again later.');
     }

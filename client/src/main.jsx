@@ -58,7 +58,7 @@ const router = createBrowserRouter([
         element: <About />
       },
       {
-        path: "/support",
+        path: "/support/:authorId",
         element: <SupportAuthor />
       },
       {

@@ -96,7 +96,7 @@ export const chapaWebhook = async (req, res) => {
   try {
     // Optional: Verify Chapa signature
     const chapaSignature = req.headers['chapa-signature'];
-    if (!chapaSignature || chapaSignature !== process.env.CHAPA_SECRET_KEY) {
+    if (!chapaSignature || chapaSignature !== process.env.CHAPA_WEBHOOK_SECRET) {
       return res.status(403).send('Invalid Chapa signature');
     }
 

@@ -19,53 +19,60 @@ const PopularAuthors = () => {
     fetchPopularAuthors();
   }, []);
 
-return (
-    <div className=" p-4 sm:p-6 bg-white dark:bg-gray-800   w-full max-w-md mx-auto">
- 
-   <ul className="flex flex-col gap-6">
-    <hr className="my-8 border-gray-300 dark:border-gray-700" />
-    {authors.map((author) => (
-      <li
-        key={author._id}
-      >
-        <div className="flex items-center justify-between p-2">
-  {/* Left Section: Profile Picture and Name */}
-  <div className="flex items-center space-x-3">
-   
-    {/* Author Name */}
-    <span className="font-semibold text-gray-800 dark:text-gray-200">
-      {author.username || 'Unknown Author'}
-      <p className="text-indigo-600">{author.followers ? author.followers.length : 0} Followers</p>
-    </span>
-  </div>
+  return (
+    <div className="p-6 bg-white dark:bg-gray-900 shadow-md rounded-xl max-w-xl mx-auto">
+      <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+        🌟 Popular Authors
+      </h2>
+      <ul className="flex flex-col gap-6">
+        {authors.map((author) => (
+         <li key={author._id} className="border-b border-gray-200 dark:border-gray-700 pb-4">
+          <div className="flex items-center justify-between gap-4">
+            {/* Author Info */}
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="w-12 h-12 shrink-0">
+                <Image
+                  src={author.img}
+                  alt={author.username}
+                  className="w-full h-full rounded-full object-cover border border-gray-300 dark:border-gray-600"
+                />
+              </div>
+              <div className="truncate">
+                <p className="text-base font-semibold text-gray-800 dark:text-gray-100 truncate">
+                  {author.username || "Unknown Author"}
+                </p>
+                <p className="text-sm text-indigo-600 dark:text-indigo-400">
+                  {author.followers?.length || 0} Followers
+                </p>
+              </div>
+            </div>
 
-  {/* Right Section: View Profile Button */}
-  <Link
-    to={`/authors/${author.username}`}
-    className="
-      text-sm
-      px-3 py-1.5 // Slightly smaller padding for a compact button
-      bg-transparent
-      border border-indigo-500
-      text-indigo-600
-      rounded-full
-      transition-colors duration-200 
-      focus:outline-none focus:ring-2 focus:ring-indigo-400
-      hover:bg-indigo-500 hover:text-white
-      dark:border-indigo-400 dark:text-indigo-400
-      dark:hover:bg-indigo-400 dark:hover:text-black
-    "
-  >
-    View Profile
-  </Link>
-</div>
-<hr className="my-8 border-gray-300 dark:border-gray-700" />
-      </li>
-    ))}
-  </ul>
-</div>
+            {/* View Profile Button (won’t shrink) */}
+            <Link
+              to={`/authors/${author.username}`}
+              className="
+                flex-shrink-0
+                text-sm font-medium
+                px-4 py-1.5
+                border border-indigo-500
+                text-indigo-600
+                rounded-full
+                transition duration-200
+                hover:bg-indigo-500 hover:text-white
+                dark:border-indigo-400 dark:text-indigo-400
+                dark:hover:bg-indigo-400 dark:hover:text-black
+                focus:outline-none focus:ring-2 focus:ring-indigo-300
+              "
+            >
+              View Profile
+            </Link>
+          </div>
+        </li>
 
-);
-}
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 export default PopularAuthors;

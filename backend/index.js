@@ -37,7 +37,7 @@ app.use("/users", userRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
-app.use('/webhook', webhookRoutes);
+app.use('/chapa', webhookRoutes);
 
 app.use("/analytics", analyticsRoutes);
 app.use("/request",handleRequest);

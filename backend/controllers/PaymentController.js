@@ -135,24 +135,38 @@ export const chapaWebhook = async (req, res) => {
   
 
   export const DonationDetails = async (req, res) => {
-    const { tx_ref } = req.params;
-  
-    try {
-      const donation = await Donation.findOne({ tx_ref });
+  const { tx_ref } = req.params;
 
-      //update the status of the donation
-      if (donation) {
-        donation.status = 'successful';
-        await donation.save();
-      }
-      // Check if donation exists
-      if (!donation) {
-        return res.status(404).json({ error: 'Donation not found' });
-      }
-  
-      res.status(200).json(donation);
-    } catch (error) {
-      console.error('Error fetching donation details:', error);
-      res.status(500).json({ error: 'Server error' });
+  try {
+    const donation = await Donation.findOne({ tx_ref });
+
+    // Check if donation exists
+    if (!donation) {
+      return res.status(404).json({ error: 'Donation not found' });
     }
-  };
+
+    // Update the status of the donation
+    if (donation.status !== 'successful') {
+      donation.status = 'successful';
+      await donation.save();
+
+      // Update author's wallet if not already updated
+      if (donation.authorId) {
+        const commissionRate = 0.10; // 10% commission
+        const netAmount = donation.amount * (1 - commissionRate);
+
+        let wallet = await Wallet.findOne({ user: donation.authorId });
+        if (!wallet) {
+          wallet = new Wallet({ user: donation.authorId, balance: 0 });
+        }
+        wallet.balance += netAmount;
+        await wallet.save();
+      }
+    }
+
+    res.status(200).json(donation);
+  } catch (error) {
+    console.error('Error fetching donation details:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

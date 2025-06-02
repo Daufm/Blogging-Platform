@@ -155,9 +155,9 @@ export const chapaWebhook = async (req, res) => {
         const commissionRate = 0.10; // 10% commission
         const netAmount = donation.amount * (1 - commissionRate);
 
-        let wallet = await Wallet.findOne({ user: donation.authorId });
+        let wallet = await Wallet.findOne({ authorId: donation.authorId });
         if (!wallet) {
-          wallet = new Wallet({ user: donation.authorId, balance: 0 });
+          wallet = new Wallet({ authorId: new mongoose.ObjectId( donation.authorId) , balance: 0 });
         }
         wallet.balance += netAmount;
         await wallet.save();

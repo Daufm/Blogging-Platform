@@ -5,7 +5,7 @@ const Router = express.Router();
 
 
 Router.post('/donate' , initiateDonation);
-Router.post('/webhook', chapaWebhook);
+Router.post('/chapa/webhook', chapaWebhook);
 Router.get('/donations/:tx_ref' , DonationDetails)
 
 

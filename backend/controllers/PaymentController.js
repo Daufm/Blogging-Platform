@@ -157,7 +157,7 @@ export const chapaWebhook = async (req, res) => {
 
         let wallet = await Wallet.findOne({ authorId: donation.authorId });
         if (!wallet) {
-          wallet = new Wallet({ authorId: new mongoose.ObjectId( donation.authorId) , balance: 0 });
+          wallet = new Wallet({ authorId: new mongoose.Types.ObjectId( donation.authorId) , balance: 0 });
         }
         wallet.balance += netAmount;
         await wallet.save();

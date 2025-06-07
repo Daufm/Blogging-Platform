@@ -26,6 +26,7 @@ import SupportAuthor from "./components/payment.jsx";
 import ThankYouPage from "./components/ThankYou.jsx";
 import FeaturedPosts from "./components/FeaturedPosts.jsx";
 import EditPost from "./pages/EditPost.jsx";
+import NotFoundPage from "./pages/NotFound.jsx"
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,11 @@ const router = createBrowserRouter([
     path: "/verify-otp",
     element: <VerifyOtpPage />,
   },
+
+  // {
+  //   path: "*",
+  //   element: <NotFoundPage/>
+  // }
 ]);
 
 

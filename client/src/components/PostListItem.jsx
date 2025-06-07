@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { fetchAuthorData } from "../utils/api";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const PostListItem = ({ post }) => {
   const queryClient = useQueryClient();
@@ -67,18 +68,19 @@ const PostListItem = ({ post }) => {
     }
   };
 
-
-
   return (
-    <div className="w-full md:w-[60%] lg:w-[70%] pr-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow hover:shadow-md transition-all duration-300 border-0  flex flex-col h-full overflow-hidden">
+    <motion.div 
+      whileHover={{ scale: 1.02 }}
+      className="w-full"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden backdrop-blur-sm">
         {/* Image */}
         {post.img && (
-          <Link to={`/${post.slug}`} className="block h-44 overflow-hidden">
+          <Link to={`/${post.slug}`} className="block h-48 overflow-hidden">
             <Image
               src={post.img}
               alt={post.title}
-              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               w="600"
               h="300"
             />
@@ -86,12 +88,12 @@ const PostListItem = ({ post }) => {
         )}
 
         {/* Content */}
-        <div className="p-4 flex flex-col flex-grow">
+        <div className="p-6 flex flex-col flex-grow">
           {/* Category */}
           {post.category && (
             <Link
               to={`/category/${post.category}`}
-              className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-700 dark:text-blue-100 font-medium inline-block px-2 py-1 rounded-full mb-2 hover:bg-blue-200 dark:hover:bg-blue-600 transition"
+              className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-medium inline-block px-3 py-1 rounded-full mb-3 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors duration-300"
             >
               {post.category}
             </Link>
@@ -100,27 +102,27 @@ const PostListItem = ({ post }) => {
           {/* Title */}
           <Link
             to={`/${post.slug}`}
-            className="text-lg font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition mb-2 line-clamp-2"
+            className="text-xl font-bold text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300 mb-3 line-clamp-2"
           >
             {post.title}
           </Link>
 
           {/* Description */}
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{post.desc}</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{post.desc}</p>
 
           {/* Footer: author, like, read more */}
-          <div className="flex items-center mt-auto">
+          <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
             {/* Author */}
-            <div className="flex items-center gap-2 mr-6">
+            <div className="flex items-center gap-2">
               {post.user?.img ? (
                 <Image
                   src={post.user.img}
                   alt={post.user.username}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-100 dark:ring-indigo-900"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                  <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center ring-2 ring-indigo-100 dark:ring-indigo-900">
+                  <svg className="h-6 w-6 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3 17a7 7 0 0114 0H3z" />
                   </svg>
                 </div>
@@ -128,23 +130,24 @@ const PostListItem = ({ post }) => {
               <Link
                 to={`/authors/${post.user?.username || "#"}`}
                 onMouseEnter={prefetchAuthorData}
-                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300"
               >
                 {post.user?.username || "Unknown"}
               </Link>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
-              <button
+            <div className="flex items-center gap-4">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={handleLike}
                 aria-label={isLiked ? "Unlike post" : "Like post"}
-                className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition mr-4"
+                className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className={`h-5 w-5 ${isLiked ? "text-red-500" : "text-gray-400 dark:text-gray-400"}`}
-                  fill={isLiked ? "red" : "none"}
+                  fill={isLiked ? "currentColor" : "none"}
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -155,20 +158,23 @@ const PostListItem = ({ post }) => {
                     d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
                   />
                 </svg>
-                <span className="text-sm select-none">{likeCount}</span>
-              </button>
+                <span className="text-sm font-medium select-none">{likeCount}</span>
+              </motion.button>
 
               <Link
                 to={`/${post.slug}`}
-                className="text-sm text-blue-500 dark:text-blue-400 hover:underline"
+                className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-300 flex items-center gap-1"
               >
                 Read more
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

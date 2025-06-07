@@ -160,6 +160,30 @@ const UserProfile = () => {
     }
   };
 
+  // Mutation for withdrawing funds
+  const withdrawMutation = useMutation({
+  mutationFn: async () => {
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/donations/withdraw`,
+      { userId },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return res.data;
+  },
+  onSuccess: () => {
+    toast.success("Withdrawal request sent successfully!");
+    queryClient.invalidateQueries(["wallet", userId]);
+  },
+  onError: (err) => {
+    toast.error(err.response?.data?.message || "Failed to request withdrawal.");
+  },
+});
+
+
   // Helper to get MUI Chip color based on role
   const getRoleColor = (role) => {
     switch (role) {
@@ -295,6 +319,48 @@ const UserProfile = () => {
                     {data.website.replace(/(^\w+:|^)\/\//, "")}
                   </Button>
                 )}
+
+                {data.user?.role === "author" && (
+                  <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
+                    <CardHeader
+                      title={
+                        <Typography variant="h6" fontWeight={700}>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            Donation Wallet
+                          </Box>
+                        </Typography>
+                      }
+                    />
+                    <CardContent>
+                      {walletLoading ? (
+                        <CircularProgress />
+                      ) : (
+                        <Stack spacing={2}>
+                          <Typography variant="body1">
+                            Current Balance:{" "}
+                            <strong style={{ color: "#2e7d32" }}>
+                              {wallet?.balance ?? 0} ETB
+                            </strong>
+                          </Typography>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => withdrawMutation.mutate()}
+                            disabled={wallet?.balance < 10 || withdrawMutation.isLoading}
+                          >
+                            {withdrawMutation.isLoading ? "Processing..." : "Withdraw"}
+                          </Button>
+                          {wallet?.balance < 10 && (
+                            <Typography variant="caption" color="text.secondary">
+                              Minimum balance of 10 ETB required to withdraw.
+                            </Typography>
+                          )}
+                        </Stack>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
 
                 {/* Action Buttons (Edit Profile, Logout) */}
                 <Stack direction="row" spacing={2} mt={2} flexWrap="wrap">

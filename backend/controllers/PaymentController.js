@@ -170,3 +170,31 @@ export const chapaWebhook = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+export const getWalletDonations = async (req,res) =>{
+  const{id} = req.params;
+  try {
+    // Validate the ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid author ID' });
+    }
+
+    // Find donations for the given author ID
+    const wallet = await Wallet.findOne({ authorId: id })
+      .populate('authorId', 'name  balance ')
+      .lean();
+    
+    // Check if wallet exist
+ if (!wallet) {
+  const newWallet = new Wallet({ authorId: new mongoose.Types.ObjectId(id), balance: 0 , totalReceived: 0 });
+  await newWallet.save();
+  return res.status(200).json(newWallet);
+}
+
+
+    res.status(200).json(wallet);
+  } catch (error) {
+    console.error('Error fetching wallet Balance:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+}

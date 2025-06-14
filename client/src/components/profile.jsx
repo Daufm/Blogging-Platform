@@ -40,11 +40,10 @@ import {
   Verified as VerifiedIcon,
 } from "@mui/icons-material";
 import PostListItem from "../components/PostListItem";
-import Image from "./Image"; // Assuming this is your custom Image component
-import Upload from "../components/Upload"; // Assuming this is your custom Upload component
-import ResetPassword from "./resetpass"; // Assuming this is your ResetPassword component
+import Image from "./Image";
+import Upload from "../components/Upload";
+import ResetPassword from "./resetpass";
 
-// --- API Calls ---
 const fetchUserData = async (username) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile/${username}`);
   return res.data;
@@ -63,7 +62,6 @@ const updateUserProfile = async (updatedData) => {
   return res.data;
 };
 
-// --- UserProfile Component ---
 const UserProfile = () => {
   const { username } = useParams();
   const queryClient = useQueryClient();
@@ -71,13 +69,11 @@ const UserProfile = () => {
   const isOwner = loggedInUser?.username === username;
   const userId = loggedInUser?.id;
 
-  // Fetch user data using React Query
   const { isLoading, error, data } = useQuery({
     queryKey: ["user", username],
     queryFn: () => fetchUserData(username),
   });
 
-  // Mutation for updating user profile
   const mutation = useMutation({
     mutationFn: updateUserProfile,
     onSuccess: (updatedUser) => {
@@ -87,10 +83,8 @@ const UserProfile = () => {
       if (isOwner) {
         localStorage.setItem("user", JSON.stringify({
           ...updatedUser,
-        
         }));
       }
-      //update the route to reflect the new username if it was changed
       if (updatedUser.username !== username) {
         window.location.href = `/profile/${updatedUser.username}`; 
       }
@@ -100,28 +94,43 @@ const UserProfile = () => {
     },
   });
 
-  // --- State Management ---
+  const { data: walletData, isLoading: walletLoading } = useQuery({
+    queryKey: ["wallet", userId],
+    queryFn: async () => {
+      if (data?.user?.role !== "author") return null;
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/payment/donations/wallet/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return res.data;
+
+    },
+    enabled: !!userId && data?.user?.role === "author",
+    onError : (message) =>{
+      toast.error(message || "Failed to load wallet data.");
+    }
+
+  });
+
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState("");
-  const [img, setImg] = useState(null); // State for new image file path
-  const [username1, setUsername] = useState(""); // State for editing username
+  const [img, setImg] = useState(null);
+  const [username1, setUsername] = useState("");
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [progress, setProgress] = useState(0); // Upload progress
+  const [progress, setProgress] = useState(0);
 
-  // Populate form fields when data is loaded
   useEffect(() => {
     if (data) {
       setBio(data.bio || "");
       setUsername(data.username);
-      // setImg(data.img || null); // Don't set `img` here directly, as it's for new upload
     }
   }, [data]);
 
-  // --- Handlers ---
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    window.location.href = "/login"; // Full page reload to ensure state reset
+    window.location.href = "/login";
   };
 
   const handleEditProfile = () => setIsEditing(true);
@@ -131,12 +140,9 @@ const UserProfile = () => {
     if (!bio.trim()) return toast.error("Bio cannot be empty.");
     if (!username1.trim()) return toast.error("Username cannot be empty.");
 
-    // Determine the image to send: new uploaded image or existing one
     const updatedData = {
       bio,
       username: username1,
-      // If `img` state holds a new filePath from upload, use it.
-      // Otherwise, use the `data.img` which is the existing one.
       img: img?.filePath || data.img,
     };
     mutation.mutate(updatedData);
@@ -160,31 +166,28 @@ const UserProfile = () => {
     }
   };
 
-  // Mutation for withdrawing funds
   const withdrawMutation = useMutation({
-  mutationFn: async () => {
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_URL}/donations/withdraw`,
-      { userId },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    return res.data;
-  },
-  onSuccess: () => {
-    toast.success("Withdrawal request sent successfully!");
-    queryClient.invalidateQueries(["wallet", userId]);
-  },
-  onError: (err) => {
-    toast.error(err.response?.data?.message || "Failed to request withdrawal.");
-  },
-});
+    mutationFn: async () => {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/donations/withdraw`,
+        { userId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Withdrawal request sent successfully!");
+      queryClient.invalidateQueries(["wallet", userId]);
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to request withdrawal.");
+    },
+  });
 
-
-  // Helper to get MUI Chip color based on role
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
@@ -192,11 +195,10 @@ const UserProfile = () => {
       case "author":
         return "success";
       default:
-        return "primary"; // Or 'default' or a specific light color for 'user'
+        return "primary";
     }
   };
 
-  // --- Loading and Error States ---
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -222,50 +224,98 @@ const UserProfile = () => {
       </Container>
     );
   }
- 
- console.log("UserProfile data:", data); // Debugging line to check fetched data
-  // --- Main Render ---
-  return (
 
+  return (
     <Box
-      sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}
-      className="dark:bg-gray-900 bg-[#f6f8fa] transition-colors duration-300"
+      sx={{ 
+        bgcolor: "background.default", 
+        minHeight: "100vh", 
+        py: 4,
+        background: 'linear-gradient(to bottom, #f6f8fa, #ffffff)',
+        '.dark &': {
+          background: 'linear-gradient(to bottom, #111827, #1f2937)'
+        }
+      }}
     >
       {/* Profile Header Section */}
-      <Container maxWidth="md">
-        <Paper
-          elevation={3}
-          sx={{
-            p: { xs: 3, md: 5 },
-            mb: 4,
-            borderRadius: 4,
-            background: "none", // Keeps background transparent or based on parent
-            boxShadow: 6,
-          }}
-          className="dark:bg-gray-900 dark:text-white bg-white transition-colors duration-300"
-        >
-          <Grid container spacing={4} alignItems="center">
-            {/* Profile Picture Column */}
-            <Grid item xs={12} md={4}>
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Container maxWidth="lg">
+        <Grid container spacing={4}>
+          {/* Left Column - Profile Picture and Wallet */}
+          
+          <Grid item xs={12} md={4}>
+          <Stack
+            direction={{ xs: 'column', md: 'row-reverse' }}
+            spacing={10}
+            alignItems="flex-start"
+          >
+            {/* Wallet Section */}
+            {data.user?.role === "author" && (
+              <Box sx={{ flex: 1 }}>
+                <Card elevation={3} sx={{ borderRadius: 3, p: 3 }}>
+                  <Typography variant="h6" fontWeight={700} gutterBottom>
+                    Donation Wallet
+                  </Typography>
+
+                  {walletLoading ? (
+                    <Box display="flex" justifyContent="center" py={2}>
+                      <CircularProgress size={24} />
+                    </Box>
+                  ) : (
+                    <Stack spacing={2}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Current Balance
+                        </Typography>
+                       <Typography variant="h5" fontWeight={700} color="success.main">
+                          {walletData?.balance !== undefined ? `${walletData.balance} ETB` : "0 ETB"}
+                        </Typography>
+                      </Box>
+
+                      <Button
+                        variant="contained"
+                        color="success"
+                        fullWidth
+                        disabled={walletData?.balance < 10 || withdrawMutation.isLoading}
+                        onClick={() => withdrawMutation.mutate()}
+                        sx={{ py: 1.5 }}
+                      >
+                        {withdrawMutation.isLoading ? "Processing..." : "Withdraw Funds"}
+                      </Button>
+
+                      {walletData?.balance < 100 && (
+                        <Typography variant="caption" color="text.secondary" textAlign="center">
+                          Minimum 100 ETB required to withdraw.
+                        </Typography>
+                      )}
+                    </Stack>
+                  )}
+                </Card>
+              </Box>
+            )}
+
+            {/* Profile Picture */}
+            <Box sx={{ flex: 1 }}>
+              <Card elevation={3} sx={{ borderRadius: 3, p: 3, textAlign: "center" }}>
                 <Image
-                  src={data.user?.img || "/default-avatar.png"} // Fallback image
+                  src={data.user?.img || "/default-avatar.png"}
                   alt={data.user?.username}
-                  w={150}
-                  h={150}
-                  className="rounded-full border-4 border-primary-main shadow-lg mb-2 object-cover"
+                  w={180}
+                  h={180}
+                  className="rounded-full border-4 border-primary-main shadow-lg object-cover mx-auto"
                 />
                 {isOwner && isEditing && (
-                  <Box mt={1}>
+                  <Box mt={2}>
                     <Upload type="image" setProgress={setProgress} setData={setImg}>
                       <Button
                         variant="outlined"
                         size="small"
                         startIcon={<UploadIcon />}
+                        fullWidth
                         sx={{
-                          bgcolor: "background.paper", // Ensure button background is visible
+                          mt: 1,
+                          bgcolor: "background.paper",
                           color: "primary.main",
-                          "&:hover": { bgcolor: "background.paper", opacity: 0.9 }, // Slight hover effect
+                          "&:hover": { bgcolor: "background.paper", opacity: 0.9 },
                         }}
                       >
                         Change Photo
@@ -273,38 +323,54 @@ const UserProfile = () => {
                     </Upload>
                   </Box>
                 )}
-              </Box>
-            </Grid>
+              </Card>
+            </Box>
+          </Stack>
 
-            {/* User Info Column */}
-            <Grid item xs={12} md={8}>
-              <Stack spacing={2}>
-                {/* Username, Role, and Verified Icon */}
-                <Box display="flex" alignItems="center" gap={1}>
+        </Grid>
+
+
+          
+          {/* Right Column - Profile Info and Posts */}
+          <Grid item xs={12} md={8}>
+            <Paper
+              elevation={3}
+              sx={{
+                p: { xs: 3, md: 4 },
+                borderRadius: 3,
+                mb: 3
+              }}
+              className="dark:bg-gray-800 bg-white"
+            >
+              <Stack spacing={3}>
+                {/* User Info Header */}
+                <Box display="flex" alignItems="center" flexWrap="wrap" gap={1}>
                   <Typography variant="h4" fontWeight={700}>
                     {data.user?.username}
                   </Typography>
                   {data.user?.role === "admin" && (
                     <Tooltip title="Verified Admin">
-                      <VerifiedIcon color="secondary" />
+                      <VerifiedIcon color="secondary" fontSize="large" />
                     </Tooltip>
                   )}
                   <Chip
-                    label={data.user?.role || "User"} // Display 'User' if role is not defined
-                    color={getRoleColor(data.role)}
-                    size="small"
-                    sx={{ ml: 1, fontWeight: 600 }}
+                    label={data.user?.role || "User"}
+                    color={getRoleColor(data.user?.role)}
+                    size="medium"
+                    sx={{ fontWeight: 600, ml: 1 }}
                   />
                 </Box>
 
-               
-
                 {/* Bio */}
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: 18 }} className="dark:text-gray-300">
-                  {data.user?.bio || (
-                    <span style={{ color: "#aaa" }}>No bio yet. Add something about yourself!</span>
-                  )}
-                </Typography>
+                <Box>
+                  <Typography variant="body1" sx={{ fontSize: 18 }} className="dark:text-gray-300">
+                    {data.user?.bio || (
+                      <span style={{ color: "#aaa", fontStyle: 'italic' }}>
+                        No bio yet. Add something about yourself!
+                      </span>
+                    )}
+                  </Typography>
+                </Box>
 
                 {/* Website Link */}
                 {data.website && (
@@ -313,186 +379,121 @@ const UserProfile = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     startIcon={<LinkIcon />}
-                    sx={{ alignSelf: "flex-start", fontWeight: 500 }}
+                    sx={{ 
+                      alignSelf: 'flex-start',
+                      fontWeight: 500,
+                      color: 'primary.main'
+                    }}
                   >
-                    {/* Display clean URL without protocol */}
                     {data.website.replace(/(^\w+:|^)\/\//, "")}
                   </Button>
                 )}
 
-                {data.user?.role === "author" && (
-                  <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
-                    <CardHeader
-                      title={
-                        <Typography variant="h6" fontWeight={700}>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            Donation Wallet
-                          </Box>
-                        </Typography>
-                      }
-                    />
-                    <CardContent>
-                      {walletLoading ? (
-                        <CircularProgress />
-                      ) : (
-                        <Stack spacing={2}>
-                          <Typography variant="body1">
-                            Current Balance:{" "}
-                            <strong style={{ color: "#2e7d32" }}>
-                              {wallet?.balance ?? 0} ETB
-                            </strong>
-                          </Typography>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            onClick={() => withdrawMutation.mutate()}
-                            disabled={wallet?.balance < 10 || withdrawMutation.isLoading}
-                          >
-                            {withdrawMutation.isLoading ? "Processing..." : "Withdraw"}
-                          </Button>
-                          {wallet?.balance < 10 && (
-                            <Typography variant="caption" color="text.secondary">
-                              Minimum balance of 10 ETB required to withdraw.
-                            </Typography>
-                          )}
-                        </Stack>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-
-                {/* Action Buttons (Edit Profile, Logout) */}
-                <Stack direction="row" spacing={2} mt={2} flexWrap="wrap">
-                  {isOwner && (
-                    <>
+                {/* Action Buttons */}
+                {isOwner && (
+                  <Stack direction="row" spacing={2} flexWrap="wrap">
+                    <Button
+                      onClick={handleEditProfile}
+                      variant="contained"
+                      startIcon={<EditIcon />}
+                      sx={{ fontWeight: 600 }}
+                    >
+                      Edit Profile
+                    </Button>
+                    <Button
+                      onClick={handleLogout}
+                      variant="outlined"
+                      color="error"
+                      startIcon={<LogoutIcon />}
+                      sx={{ fontWeight: 600 }}
+                    >
+                      Logout
+                    </Button>
+                    {data.user?.role === "user" && (
                       <Button
-                        onClick={handleEditProfile}
+                        onClick={handleAuthorRequest}
                         variant="contained"
+                        color="warning"
                         startIcon={<EditIcon />}
                         sx={{ fontWeight: 600 }}
                       >
-                        Edit Profile
+                        Request Author Role
                       </Button>
-                      <Button
-                        onClick={handleLogout}
-                        variant="outlined"
-                        color="error"
-                        startIcon={<LogoutIcon />}
-                        sx={{ fontWeight: 600 }}
-                      >
-                        Logout
-                      </Button>
-                    </>
-                  )}
-                </Stack>
-              </Stack>
-            </Grid>
-          </Grid>
-        </Paper>
-      </Container>
-
-      {/* Main Content Section */}
-      <Container maxWidth="md">
-        {isOwner && (
-          <Stack direction="row" spacing={2} sx={{ mb: 4 }} flexWrap="wrap">
-            {data.user?.role === "admin" && (
-              <Button
-                component={Link}
-                to="/admin_dashboard"
-                variant="contained"
-                color="secondary"
-                startIcon={<AdminIcon />}
-                sx={{ fontWeight: 600 }}
-              >
-                Admin Dashboard
-              </Button>
-            )}
-            {data.user?.role  === "user" &&  (
-              <Button
-                onClick={handleAuthorRequest}
-                variant="contained"
-                color="warning"
-                startIcon={<EditIcon />}
-                sx={{ fontWeight: 600 }}
-              >
-                Request Author Role
-              </Button>
-            )}
-            <Button
-              onClick={() => setShowChangePassword(true)}
-              variant="outlined"
-              startIcon={<LockIcon />}
-              sx={{ fontWeight: 600 }}
-            >
-              Change Password
-            </Button>
-            <Dialog
-              open={showChangePassword}
-              onClose={() => setShowChangePassword(false)}
-            >
-              <ResetPassword setShowChangePassword={setShowChangePassword} />
-            </Dialog>
-          </Stack>
-        )}
-
-        {/* Posts Section */}
-        <Card elevation={2} sx={{ borderRadius: 3 }} className="dark:bg-gray-900 bg-white transition-colors duration-300">
-          <CardHeader
-            title={
-              <Typography variant="h6" component="h2" fontWeight={700}>
-                <Box display="flex" alignItems="center" gap={1} className="dark:text-gray-300">
-                  <ArticleIcon color="primary" />
-                  Posts by {data.username}
-                </Box>
-              </Typography>
-            }
-          />
-          <Divider /> {/* Horizontal line divider */}
-          {data.posts && data.posts.length === 0 ? (
-            <CardContent>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                textAlign="center"
-                py={8}
-              >
-                <ImageIcon sx={{ fontSize: 80, color: "text.disabled", mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  No posts yet
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  When {data.username} creates posts, they'll appear here.
-                </Typography>
-                {isOwner && (
-                  <Button
-                    component={Link}
-                    to="/write"
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    sx={{ mt: 2, fontWeight: 600 }}
-                  >
-                    Create your first post
-                  </Button>
+                    )}
+                    <Button
+                      onClick={() => setShowChangePassword(true)}
+                      variant="outlined"
+                      startIcon={<LockIcon />}
+                      sx={{ fontWeight: 600 }}
+                    >
+                      Change Password
+                    </Button>
+                  </Stack>
                 )}
+              </Stack>
+            </Paper>
+
+            {/* Posts Section */}
+            <Paper
+              elevation={3}
+              sx={{
+                borderRadius: 3,
+                overflow: 'hidden'
+              }}
+              className="dark:bg-gray-800 bg-white"
+            >
+              <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
+                <Typography variant="h6" component="h2" fontWeight={700}>
+                  <Box display="flex" alignItems="center" gap={1} className="dark:text-gray-300">
+                    <ArticleIcon color="primary" />
+                    Posts by {data.username}
+                  </Box>
+                </Typography>
               </Box>
-            </CardContent>
-          ) : (
-            <Box>
-              {console.log("Posts data:", data.posts)} {/* Debugging line to check posts data */}
-              {data.posts && data.posts.map((post) => (
-                <PostListItem key={post._id} post={post}  />
-              ))}
-            </Box>
-          )}
-        </Card>
+
+              {data.posts && data.posts.length === 0 ? (
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  textAlign="center"
+                  py={8}
+                >
+                  <ImageIcon sx={{ fontSize: 80, color: "text.disabled", mb: 2 }} />
+                  <Typography variant="h6" gutterBottom>
+                    No posts yet
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    When {data.username} creates posts, they'll appear here.
+                  </Typography>
+                  {isOwner && (
+                    <Button
+                      component={Link}
+                      to="/write"
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      sx={{ mt: 2, fontWeight: 600 }}
+                    >
+                      Create your first post
+                    </Button>
+                  )}
+                </Box>
+              ) : (
+                <Box>
+                  {data.posts && data.posts.map((post) => (
+                    <PostListItem key={post._id} post={post} />
+                  ))}
+                </Box>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
       </Container>
 
       {/* Edit Profile Modal */}
-      <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth className="dark:text-white">
+      <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth>
         <DialogTitle className="dark:bg-slate-900">Edit Profile</DialogTitle>
-        <form onSubmit={handleSaveProfile} className="dark:bg-[#18191A] dark:text-white bg-[#f6f8fa] transition-colors duration-300">
+        <form onSubmit={handleSaveProfile} className="dark:bg-[#18191A]">
           <DialogContent>
             <Stack spacing={3}>
               <TextField
@@ -503,23 +504,12 @@ const UserProfile = () => {
                 margin="normal"
                 inputProps={{ maxLength: 32 }}
                 required
-                // Add dark mode styling if needed for TextField
                 sx={{
-                  '& .MuiInputBase-input': {
-                    color: 'inherit', // Inherit text color
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary', // Label color
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'divider', // Border color
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main', // Hover border color
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main', // Focused border color
-                  },
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                 }}
               />
               <TextField
@@ -533,21 +523,11 @@ const UserProfile = () => {
                 inputProps={{ maxLength: 200 }}
                 helperText={`${bio.length}/200`}
                 sx={{
-                  '& .MuiInputBase-input': {
-                    color: 'inherit',
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'divider',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main',
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main',
-                  },
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                 }}
               />
               <Box>
@@ -616,6 +596,14 @@ const UserProfile = () => {
             </Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog
+        open={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      >
+        <ResetPassword setShowChangePassword={setShowChangePassword} />
       </Dialog>
     </Box>
   );

@@ -685,7 +685,10 @@ const ApproveFund = ()=>{
             return (
               <div key={request._id} className="p-4 border rounded shadow mb-4">
                 <p><strong>Author:</strong> {request.authorId?.username}</p>
-                <p><strong>Amount:</strong> ${request.amount}</p>
+                <p><strong>Amount:</strong> birr{ request.amount}</p>
+                <p><strong>Account(CBE) </strong >{ request.authorId?.CBEAccount}</p>
+                <p><strong>Phone Number(TeleBirr) </strong >{ request.authorId?.PhoneNumber}</p>
+    
                 <p><strong>Status:</strong> {request.status}</p>
                 <p className="text-sm text-gray-500">
                   {new Date(request.createdAt).toLocaleString('en-US', {
@@ -717,11 +720,5 @@ const ApproveFund = ()=>{
     </section>
   )
 }
-
-
-
-
-
-
 
 export default AdminDashboard;

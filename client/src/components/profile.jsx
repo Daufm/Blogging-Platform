@@ -121,6 +121,9 @@ const UserProfile = () => {
   const [progress, setProgress] = useState(0);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [cbeAccount, setCbeAccount] = useState('');
+  const [phoneNo, setPhoneNumber] = useState('');
+  const [byMecoffe, setByMecoffe] = useState('');
 
   useEffect(() => {
     if (data) {
@@ -135,17 +138,27 @@ const UserProfile = () => {
     window.location.href = "/login";
   };
 
-  const handleEditProfile = () => setIsEditing(true);
+  const handleEditProfile = () => {
+  setUsername(data.user?.username || "");
+  setBio(data.user?.bio || "");
+  setIsEditing(true);
+};
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
-    if (!bio.trim()) return toast.error("Bio cannot be empty.");
-    if (!username1.trim()) return toast.error("Username cannot be empty.");
 
+    if (!username1 && !bio && !img && !cbeAccount && !phoneNo) {
+      return toast.error("Update at least one field.");
+    }
+   
     const updatedData = {
+
       bio,
       username: username1,
       img: img?.filePath || data.img,
+      cbeAccount,
+      phoneNo,
+      byMecoffe,
     };
     mutation.mutate(updatedData);
   };
@@ -522,6 +535,68 @@ const withdrawMutation = useMutation({
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                 }}
               />
+              {/*Phone Number */}
+              <TextField
+                type="number"
+                label="Phone Number"
+                value={phoneNo || ""}
+                fullWidth
+                margin="normal"
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                InputProps={{
+                  
+                  startAdornment: (
+                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                      <Typography variant="body2">+251</Typography>
+                    </Box>
+                  ),
+                }}
+                sx={{
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                }}
+              />
+
+              {/* Account No(CBE)*/}
+              <TextField
+                label="CBE Account No"
+                value={cbeAccount || ""}
+                fullWidth
+                margin="normal"
+                onChange={(e) => setCbeAccount(e.target.value)}
+                InputProps={{
+                  
+                }}
+                sx={{
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                }}
+              />
+             {/* buy me coffe link */}
+             <TextField
+                label="Buy Me a Coffee Link"
+                value={byMecoffe || ""}
+                fullWidth
+                margin="normal"
+                onChange={(e) => setByMecoffe(e.target.value)}
+                InputProps={{
+                
+                }}
+                sx={{
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                }}
+              />
+
               <Box>
                 <Typography variant="subtitle2" gutterBottom>
                   Profile Image

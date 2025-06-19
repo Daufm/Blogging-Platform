@@ -119,6 +119,8 @@ const UserProfile = () => {
   const [username1, setUsername] = useState("");
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
 
   useEffect(() => {
     if (data) {
@@ -166,27 +168,17 @@ const UserProfile = () => {
     }
   };
 
-  const withdrawMutation = useMutation({
-    mutationFn: async () => {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/donations/withdraw`,
-        { userId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success("Withdrawal request sent successfully!");
-      queryClient.invalidateQueries(["wallet", userId]);
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || "Failed to request withdrawal.");
-    },
-  });
+const withdrawMutation = useMutation({
+  mutationFn: (amount) =>
+    axios.post(`${import.meta.env.VITE_API_URL}/payment/withdraw/${data.user._id}`, { amount }),
+  onSuccess: () => {
+    toast.success("Withdrawal request sent successfully!");
+    queryClient.invalidateQueries(["wallet", userId]);
+  },
+  onError: (err) => {
+    toast.error(err.response?.data?.message || "Failed to request withdrawal.");
+  },
+});
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -275,15 +267,15 @@ const UserProfile = () => {
                         variant="contained"
                         color="success"
                         fullWidth
-                        disabled={walletData?.balance < 10 || withdrawMutation.isLoading}
-                        onClick={() => withdrawMutation.mutate()}
+                        disabled={walletData?.balance < 10}
+                        onClick={() => setWithdrawDialogOpen(true)}
                         sx={{ py: 1.5 }}
                       >
-                        {withdrawMutation.isLoading ? "Processing..." : "Withdraw Funds"}
+                        Withdraw Funds
                       </Button>
 
                       {walletData?.balance < 100 && (
-                        <Typography variant="caption" color="text.secondary" textAlign="center">
+                        <Typography variant="caption" color="text.secondary" textAlign="center" >
                           Minimum 100 ETB required to withdraw.
                         </Typography>
                       )}
@@ -345,7 +337,7 @@ const UserProfile = () => {
               <Stack spacing={3}>
                 {/* User Info Header */}
                 <Box display="flex" alignItems="center" flexWrap="wrap" gap={1}>
-                  <Typography variant="h4" fontWeight={700}>
+                  <Typography variant="h4" fontWeight={700} className="dark:text-gray-300">
                     {data.user?.username}
                   </Typography>
                   {data.user?.role === "admin" && (
@@ -492,8 +484,8 @@ const UserProfile = () => {
 
       {/* Edit Profile Modal */}
       <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth>
-        <DialogTitle className="dark:bg-slate-900">Edit Profile</DialogTitle>
-        <form onSubmit={handleSaveProfile} className="dark:bg-[#18191A]">
+        <DialogTitle className="dark:bg-slate-100">Edit Profile</DialogTitle>
+        <form onSubmit={handleSaveProfile} className="dark:bg-slate-200">
           <DialogContent>
             <Stack spacing={3}>
               <TextField
@@ -604,6 +596,45 @@ const UserProfile = () => {
         onClose={() => setShowChangePassword(false)}
       >
         <ResetPassword setShowChangePassword={setShowChangePassword} />
+      </Dialog>
+
+      {/* Withdraw Dialog */}
+      <Dialog open={withdrawDialogOpen} onClose={() => setWithdrawDialogOpen(false)}>
+        <DialogTitle>Withdraw Funds</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Amount"
+            type="number"
+            fullWidth
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            inputProps={{ min: 10, max: walletData?.balance || 0 }}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setWithdrawDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            className="bg-success-500 hover:bg-success-600"
+            startIcon={withdrawMutation.isLoading ? <CircularProgress size={20} /> : null}
+            disabled={
+              !withdrawAmount ||
+              Number(withdrawAmount) < 10 ||
+              Number(withdrawAmount) > (walletData?.balance || 0) ||
+              withdrawMutation.isLoading
+            }
+            onClick={async () => {
+              await withdrawMutation.mutateAsync(Number(withdrawAmount));
+              setWithdrawDialogOpen(false);
+              setWithdrawAmount('');
+            }}
+          >
+            {withdrawMutation.isLoading ? "Processing..." : "Request"}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

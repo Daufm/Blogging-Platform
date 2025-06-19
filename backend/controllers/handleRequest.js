@@ -95,7 +95,7 @@ export const rejectAuthor = async (req ,res)=>{
 export const fundRequests = async (req, res) => {
   try {
     const requests = await WithdrawFund.find({ status: 'pending' })
-      .populate('authorId', 'username  createdAt')
+      .populate('authorId', 'username CBEAccount PhoneNumber  createdAt')
       .sort({ createdAt: -1 })
       .select('amount authorId createdAt'); 
 

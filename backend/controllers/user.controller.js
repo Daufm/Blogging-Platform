@@ -416,15 +416,20 @@ export const updateProfile = async (req, res) => {
   try {
     
     console.log("REQ.BODY:", req.body);         // 🔍 log bio and img
-    console.log("USER ID:", req.user?.id);       // 🔍 confirm token extraction
+    console.log("USER ID:", req.user?.id);     
 
-    const { bio, img ,username} = req.body;
+
+    const { bio, img ,username,cbeAccount,phoneNo,byMecoffe} = req.body;
     const userId = req.user.id;
 
     const updatedData = {};
     if (bio) updatedData.bio = bio;
     if (img) updatedData.img = img;
     if (username) updatedData.username = username;
+    if (cbeAccount) updatedData.CBEAccount = cbeAccount;
+    if (phoneNo) updatedData.PhoneNumber = phoneNo;
+    if (byMecoffe) updatedData.byMecoffe = byMecoffe;
+
 
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
 

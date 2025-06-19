@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Donation from '../models/Donation.js';
 import mongoose from 'mongoose';
-
+import WithdrawFund from '../models/withdrawFund.js';
 import dotenv from 'dotenv';
 import Wallet from '../models/wallet.js';
 
@@ -198,3 +198,49 @@ export const getWalletDonations = async (req,res) =>{
     res.status(500).json({ error: 'Server error' });
   }
 }
+
+
+export const withdarFunds = async (req, res) => {
+  const { id } = req.params;
+  const { amount } = req.body; // Amount to withdraw, if needed
+
+  try {
+    // Validate the ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid author ID' });
+    }
+
+    // Find the wallet for the given author ID
+    const wallet = await Wallet.findOne({ authorId: id });
+
+    // Check if wallet exists
+    if (!wallet) {
+      return res.status(404).json({ error: 'Wallet not found' });
+    }
+
+    // Check if the balance is sufficient for withdrawal
+    if (amount <= 10) {
+      return res.status(400).json({ error: 'Insufficient balance for withdrawal' });
+    }
+
+    //store the withdrawal transaction in the database
+    const withdrawal = new WithdrawFund({
+      authorId: id,
+      amount: amount,
+      status: 'pending',
+    });
+    // Deduct the withdrawal amount from the wallet balance
+    wallet.balance = wallet.balance - amount; 
+    // Update total received
+    wallet.totalReceived = wallet.totalReceived + amount; 
+
+    // Save the withdrawal and wallet
+    await withdrawal.save(); 
+    await wallet.save();
+
+    res.status(200).json({ message: 'Withdrawal successful', wallet });
+  } catch (error) {
+    console.error('Error processing withdrawal:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

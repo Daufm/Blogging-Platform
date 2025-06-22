@@ -58,11 +58,15 @@ const userSchema = new Schema(
     resetPasswordExpire: {
       type: Date,
     },
-    stripPaymentLink: {
+    CBEAccount: {
       type: String,
       default: "",
     },
-    supportLink: {
+    PhoneNumber: {
+      type: String,
+      default: "",
+    },
+    byMecoffe: {
       type: String,
       default: "",
     },

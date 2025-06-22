@@ -34,8 +34,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex bg-gray-50 text-gray-900">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="h-screen sticky top-0 left-0">
+        <Sidebar />
+      </div>
+      <div className="flex-1 flex flex-col overflow-y-auto max-h-screen">
         <Header toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
         <MainContent />
       </div>
@@ -51,6 +53,7 @@ const Sidebar = () => {
     { path: "/admin/reports", label: "Manage Reports" },
     { path: "/admin/analytics", label: "Manage Analytics" },
     { path: "/admin/users", label: "Manage Users" },
+     { path: "/admin/fundRequest", label: "Fund Request" },
   ];
 
   return (
@@ -95,6 +98,7 @@ const MainContent = () => (
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/users" element={<Users1/>} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/fundRequest" element={<ApproveFund />} />
     </Routes>
   </main>
 );
@@ -638,5 +642,83 @@ const Settings = () => (
     <p className="text-gray-600">Manage your application settings here.</p>
   </section>
 );
+
+
+const ApproveFund = ()=>{
+
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/request/get/fund-requests`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = res.data;
+        // console.log("Fetched fund requests:", data); // Debugging line
+        setLoading(false);
+        setRequests(data?.requests);
+      } catch (error) {
+        console.error("Failed to fetch requests", error);
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+
+  return (
+    <section>
+      {loading ? (
+        <p className="text-gray-600">Loading...</p>
+      ) : (requests?.length ?? 0) === 0 ? (
+        <p className="text-gray-600">No Fund Requests found.</p>
+      ) : (
+        <>
+          <h2 className="text-xl font-semibold mb-4">Fund Requests</h2>
+          {requests.map((request) => {
+            return (
+              <div key={request._id} className="p-4 border rounded shadow mb-4">
+                <p><strong>Author:</strong> {request.authorId?.username}</p>
+                <p><strong>Amount:</strong> birr{ request.amount}</p>
+                <p><strong>Account(CBE) </strong >{ request.authorId?.CBEAccount}</p>
+                <p><strong>Phone Number(TeleBirr) </strong >{ request.authorId?.PhoneNumber}</p>
+    
+                <p><strong>Status:</strong> {request.status}</p>
+                <p className="text-sm text-gray-500">
+                  {new Date(request.createdAt).toLocaleString('en-US', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  })}
+                </p>
+
+                <div className="flex space-x-2 mt-2">
+                  <button
+                    onClick={() => handleApprove(request._id, request.authorId?.email)}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors duration-300"
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() => handleReject(request._id)}
+                    className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400 transition-colors duration-300"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
+    </section>
+  )
+}
 
 export default AdminDashboard;

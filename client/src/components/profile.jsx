@@ -119,6 +119,11 @@ const UserProfile = () => {
   const [username1, setUsername] = useState("");
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [cbeAccount, setCbeAccount] = useState('');
+  const [phoneNo, setPhoneNumber] = useState('');
+  const [byMecoffe, setByMecoffe] = useState('');
 
   useEffect(() => {
     if (data) {
@@ -133,17 +138,27 @@ const UserProfile = () => {
     window.location.href = "/login";
   };
 
-  const handleEditProfile = () => setIsEditing(true);
+  const handleEditProfile = () => {
+  setUsername(data.user?.username || "");
+  setBio(data.user?.bio || "");
+  setIsEditing(true);
+};
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
-    if (!bio.trim()) return toast.error("Bio cannot be empty.");
-    if (!username1.trim()) return toast.error("Username cannot be empty.");
 
+    if (!username1 && !bio && !img && !cbeAccount && !phoneNo) {
+      return toast.error("Update at least one field.");
+    }
+   
     const updatedData = {
+
       bio,
       username: username1,
       img: img?.filePath || data.img,
+      cbeAccount,
+      phoneNo,
+      byMecoffe,
     };
     mutation.mutate(updatedData);
   };
@@ -166,27 +181,17 @@ const UserProfile = () => {
     }
   };
 
-  const withdrawMutation = useMutation({
-    mutationFn: async () => {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/donations/withdraw`,
-        { userId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success("Withdrawal request sent successfully!");
-      queryClient.invalidateQueries(["wallet", userId]);
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || "Failed to request withdrawal.");
-    },
-  });
+const withdrawMutation = useMutation({
+  mutationFn: (amount) =>
+    axios.post(`${import.meta.env.VITE_API_URL}/payment/withdraw/${data.user._id}`, { amount }),
+  onSuccess: () => {
+    toast.success("Withdrawal request sent successfully!");
+    queryClient.invalidateQueries(["wallet", userId]);
+  },
+  onError: (err) => {
+    toast.error(err.response?.data?.message || "Failed to request withdrawal.");
+  },
+});
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -275,15 +280,15 @@ const UserProfile = () => {
                         variant="contained"
                         color="success"
                         fullWidth
-                        disabled={walletData?.balance < 10 || withdrawMutation.isLoading}
-                        onClick={() => withdrawMutation.mutate()}
+                        disabled={walletData?.balance < 10}
+                        onClick={() => setWithdrawDialogOpen(true)}
                         sx={{ py: 1.5 }}
                       >
-                        {withdrawMutation.isLoading ? "Processing..." : "Withdraw Funds"}
+                        Withdraw Funds
                       </Button>
 
                       {walletData?.balance < 100 && (
-                        <Typography variant="caption" color="text.secondary" textAlign="center">
+                        <Typography variant="caption" color="text.secondary" textAlign="center" >
                           Minimum 100 ETB required to withdraw.
                         </Typography>
                       )}
@@ -345,7 +350,7 @@ const UserProfile = () => {
               <Stack spacing={3}>
                 {/* User Info Header */}
                 <Box display="flex" alignItems="center" flexWrap="wrap" gap={1}>
-                  <Typography variant="h4" fontWeight={700}>
+                  <Typography variant="h4" fontWeight={700} className="dark:text-gray-300">
                     {data.user?.username}
                   </Typography>
                   {data.user?.role === "admin" && (
@@ -492,8 +497,8 @@ const UserProfile = () => {
 
       {/* Edit Profile Modal */}
       <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth>
-        <DialogTitle className="dark:bg-slate-900">Edit Profile</DialogTitle>
-        <form onSubmit={handleSaveProfile} className="dark:bg-[#18191A]">
+        <DialogTitle className="dark:bg-slate-100">Edit Profile</DialogTitle>
+        <form onSubmit={handleSaveProfile} className="dark:bg-slate-200">
           <DialogContent>
             <Stack spacing={3}>
               <TextField
@@ -530,6 +535,68 @@ const UserProfile = () => {
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                 }}
               />
+              {/*Phone Number */}
+              <TextField
+                type="number"
+                label="Phone Number"
+                value={phoneNo || ""}
+                fullWidth
+                margin="normal"
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                InputProps={{
+                  
+                  startAdornment: (
+                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                      <Typography variant="body2">+251</Typography>
+                    </Box>
+                  ),
+                }}
+                sx={{
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                }}
+              />
+
+              {/* Account No(CBE)*/}
+              <TextField
+                label="CBE Account No"
+                value={cbeAccount || ""}
+                fullWidth
+                margin="normal"
+                onChange={(e) => setCbeAccount(e.target.value)}
+                InputProps={{
+                  
+                }}
+                sx={{
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                }}
+              />
+             {/* buy me coffe link */}
+             <TextField
+                label="Buy Me a Coffee Link"
+                value={byMecoffe || ""}
+                fullWidth
+                margin="normal"
+                onChange={(e) => setByMecoffe(e.target.value)}
+                InputProps={{
+                
+                }}
+                sx={{
+                  '& .MuiInputBase-input': { color: 'inherit' },
+                  '& .MuiInputLabel-root': { color: 'text.secondary' },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                }}
+              />
+
               <Box>
                 <Typography variant="subtitle2" gutterBottom>
                   Profile Image
@@ -604,6 +671,45 @@ const UserProfile = () => {
         onClose={() => setShowChangePassword(false)}
       >
         <ResetPassword setShowChangePassword={setShowChangePassword} />
+      </Dialog>
+
+      {/* Withdraw Dialog */}
+      <Dialog open={withdrawDialogOpen} onClose={() => setWithdrawDialogOpen(false)}>
+        <DialogTitle>Withdraw Funds</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Amount"
+            type="number"
+            fullWidth
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            inputProps={{ min: 10, max: walletData?.balance || 0 }}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setWithdrawDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            className="bg-success-500 hover:bg-success-600"
+            startIcon={withdrawMutation.isLoading ? <CircularProgress size={20} /> : null}
+            disabled={
+              !withdrawAmount ||
+              Number(withdrawAmount) < 10 ||
+              Number(withdrawAmount) > (walletData?.balance || 0) ||
+              withdrawMutation.isLoading
+            }
+            onClick={async () => {
+              await withdrawMutation.mutateAsync(Number(withdrawAmount));
+              setWithdrawDialogOpen(false);
+              setWithdrawAmount('');
+            }}
+          >
+            {withdrawMutation.isLoading ? "Processing..." : "Request"}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

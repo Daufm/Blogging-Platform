@@ -1,7 +1,7 @@
 import AuthorRequest from "../models/AuthorRequest.js";
 import User from "../models/user.model.js";
 import Wallet from '../models/wallet.js';
-
+import WithdrawFund from "../models/withdrawFund.js";
 
 export const requestAuthor = async (req, res)=>{
     const { userId } = req.body;
@@ -91,3 +91,17 @@ export const rejectAuthor = async (req ,res)=>{
       res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+export const fundRequests = async (req, res) => {
+  try {
+    const requests = await WithdrawFund.find({ status: 'pending' })
+      .populate('authorId', 'username CBEAccount PhoneNumber  createdAt')
+      .sort({ createdAt: -1 })
+      .select('amount authorId createdAt'); 
+
+    res.status(200).json({ requests });
+  } catch (error) {
+    console.error('Error fetching fund requests:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

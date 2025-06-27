@@ -119,6 +119,13 @@ const Dashboard = () => {
       .catch(() => setPostCount(0));
   }, []);
 
+  const handleLogOut = () =>{
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login"; // Redirect to login page
+    toast.success("Logged out successfully");
+  }
+
   return (
     <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg relative overflow-hidden">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
@@ -143,6 +150,16 @@ const Dashboard = () => {
       {/* Magic: Motivational Quote */}
       <div className="mt-8 bg-white/20 rounded-xl p-4 text-center text-lg italic shadow">
         <RandomQuote />
+      </div>
+
+      <div className="mt-8 text-center text-sm text-gray-300">
+        <button className="text-blue-200 hover:text-blue-400 transition-colors" onClick={() => window.location.reload()}>
+          Refresh Dashboard
+        </button>
+        <span className="mx-2">|</span>
+         <button className="ml-4 text-blue-200 hover:text-blue-400 transition-colors" onClick={()=> handleLogOut()} >
+         Log Out
+        </button>
       </div>
 
       {/* Magic: Live Clock */}
@@ -672,6 +689,57 @@ const ApproveFund = ()=>{
   }, []);
 
 
+const handleApprove= async (requestId, authorid) => {
+    try {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/request/approve-fund/${requestId}`, { authorid }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.status === 200) {
+        toast.success(res.data.message);
+        // Update state to remove the approved request
+        setRequests((prevRequests) =>
+          prevRequests.filter((request) => request._id !== requestId)
+        );
+      } else {
+        toast.error("Failed to approve request");
+      }
+}
+    catch(err){
+      console.error("Approve error", err);
+      toast.error("An error occurred while approving the request");
+    }
+
+  };
+
+  const handleReject = async (requestId) => {
+    try {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/request/reject-fund/${requestId}`, {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.status === 200) {
+        toast.success(res.data.message);
+        // Update state to remove the rejected request
+        setRequests((prevRequests) =>
+          prevRequests.filter((request) => request._id !== requestId)
+        );
+      } else {
+        toast.error("Failed to reject request");
+      }
+    } catch (err) {
+      console.error("Reject error", err);
+      toast.error("An error occurred while rejecting the request");
+    }
+  }
+ 
+  
+  console.log("Requests:", requests); // Debugging line
+
   return (
     <section>
       {loading ? (
@@ -699,7 +767,7 @@ const ApproveFund = ()=>{
 
                 <div className="flex space-x-2 mt-2">
                   <button
-                    onClick={() => handleApprove(request._id, request.authorId?.email)}
+                    onClick={() => handleApprove(request._id , request.authorId?._id)}
                     className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors duration-300"
                   >
                     Approve

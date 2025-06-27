@@ -2,9 +2,11 @@ import ModernPostCard from "./ModernPostCard";
 import PostListItem from "./PostListItem";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
+import React from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Divider } from "@mui/material";
 
 const fetchPosts = async (pageParam, searchParams) => {
   const searchParamsObj = Object.fromEntries([...searchParams]);
@@ -71,8 +73,7 @@ const PostList = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <h3 className="mt-4 text-xl font-medium text-gray-900 dark:text-gray-100">No posts found</h3>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">Try adjusting your search or filter to find what you're looking for.</p>
-          </div>
+           </div>
         </motion.div>
       ) : (
         <InfiniteScroll
@@ -99,14 +100,16 @@ const PostList = () => {
           className="grid grid-cols-1 gap-6 w-full"
         >
           {allPosts.map((post, index) => (
-            <motion.div
-              key={post._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-            >
-              <PostListItem post={post} />
-            </motion.div>
+            <React.Fragment key={post._id}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <PostListItem post={post} />
+              </motion.div>
+              {index < allPosts.length - 1 && <Divider sx={{ my: 2 }} />}
+            </React.Fragment>
           ))}
         </InfiniteScroll>
       )}

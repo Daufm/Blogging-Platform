@@ -5,8 +5,8 @@ import MainCategories from "../components/MainCategories";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import PopularAuthors from "../components/popular";
-
-const PostList = lazy(() => import("../components/PostList"));
+import PostList from "../components/PostList";
+//const PostList = lazy(() => import("../components/PostList"));
 
 const Homepage = () => {
   const controls = useAnimation();

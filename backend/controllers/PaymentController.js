@@ -13,8 +13,11 @@ const { CHAPA_SECRET_KEY, CLIENT_URL } = process.env;
 export const initiateDonation = async (req, res) => {
   console.log('Initiating donation with body:', req.body);
   
-  let { amount, name, email, message ,method ,authorId } = req.body;
+  let { amount, name, message ,method ,authorId } = req.body;
  
+  const {EMAIL_USER} = process.env;
+  let email = EMAIL_USER;
+
 
   amount = amount ? parseFloat(amount) : 0;
   name = name?.trim() || 'Test User';

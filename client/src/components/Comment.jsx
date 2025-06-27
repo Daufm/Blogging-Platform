@@ -36,31 +36,30 @@ const Comment = ({ comment, postId }) => {
   });
 
   return (
-    <div className="p-4 bg-slate-50 rounded-xl mb-8 dark:bg-gray-800 dark:text-gray-200">
-      <div className="flex items-center gap-4">
+    <div className="py-5 px-4 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm mb-0">
+      <div className="flex items-center gap-4 mb-2">
         {comment.user?.img && (
           <Image
             src={comment.user.img}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shadow"
             w="40"
           />
         )}
-        <span className="font-medium">{comment.user?.username || "Anonymous"}</span>
-        <span className="text-sm text-gray-500">
-          {format(comment.createdAt)}
-        </span>
+        <div className="flex-1">
+          <span className="font-semibold text-gray-800 dark:text-gray-100 mr-2">{comment.user?.username || "Anonymous"}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{format(comment.createdAt)}</span>
+        </div>
         {user &&
           (comment.user.username === user.username || role === "admin") && (
-            <span
-              className="text-xs text-red-300 hover:text-red-500 cursor-pointer"
+            <button
+              className="ml-2 text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 font-semibold px-2 py-1 rounded transition-all duration-150 border border-transparent hover:border-red-300 dark:hover:border-red-500 bg-transparent hover:bg-red-50 dark:hover:bg-red-900/30"
               onClick={() => mutation.mutate()}
             >
-              delete
-              {mutation.isPending && <span>(in progress)</span>}
-            </span>
+              {mutation.isPending ? 'Deleting...' : 'Delete'}
+            </button>
           )}
       </div>
-      <div className="mt-4">
+      <div className="mt-2 text-gray-700 dark:text-gray-200 text-base">
         <p>{comment.desc}</p>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import Image from "../components/Image";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -74,6 +75,23 @@ const RegisterPage = () => {
           Create an account to access exclusive features, connect with others, and enjoy our platform.
         </p>
         {/* Add logo or illustration here if desired */}
+      {/* Logo */}
+      <div className="mb-8 flex flex-col items-center">
+        <Image
+          src="logo.png"
+          alt="BlogSphere Logo"
+          className="w-20 h-s20 rounded-full shadow-lg mb-4"
+          style={{ objectFit: "cover" }}
+        />
+        <span className="text-3xl font-extrabold tracking-tight">BlogSphere</span>
+      </div>
+      {/* Guest Mode Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="mt-4 px-6 py-3 bg-white/80 hover:bg-white text-blue-700 font-semibold rounded-xl shadow border border-blue-200 hover:border-blue-400 transition-all duration-200"
+      >
+        Visit as Guest
+      </button>
       </div>
 
       {/* Right column: Register/Login form */}

@@ -133,7 +133,7 @@ const Write = () => {
               theme="snow"
               value={value}
               onChange={setValue}
-              className="flex-1 min-h-[300px] rounded-xl bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 shadow-inner"
+              className="flex-1 min-h-[300px] rounded-xl bg-white dark:bg-gray-200 dark:text-gray-800 font-medium border-2 border-gray-300 dark:border-gray-600 shadow-inner"
               readOnly={0 < progress && progress < 100}
             />
           </div>

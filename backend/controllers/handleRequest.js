@@ -105,3 +105,46 @@ export const fundRequests = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+export const approveFund = async (req, res) => {
+  const { id } = req.params;
+  const {authorid} = req.body;
+
+  //console.log('Author ID:', authorid); // Log the authorId for debugging
+
+  try {
+    const fundRequest = await WithdrawFund.findById(id);
+    const wallet = await Wallet.findOne({ authorId: authorid });
+    if (!fundRequest) {
+      return res.status(404).json({ message: 'Fund request not found' });
+    }
+    fundRequest.status = 'completed';
+    wallet.balance -= fundRequest.amount; // Deduct the amount from the author's wallet
+
+    await fundRequest.save();
+    await wallet.save();
+    res.status(200).json({ message: 'Fund request approved and amount deducted from wallet.' });
+  } catch (error) {
+    console.error('Error approving fund request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+export const rejectFund = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const fundRequest = await WithdrawFund.findByIdAndDelete(id);
+    if (!fundRequest) {
+      return res.status(404).json({ message: 'Fund request not found' });
+    }
+    fundRequest.status = 'rejected';
+    await fundRequest.save();
+    res.status(200).json({ message: 'Fund request rejected.' });
+  }
+  catch (error) {
+    console.error('Error rejecting fund request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

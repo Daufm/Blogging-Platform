@@ -85,7 +85,8 @@ const SinglePostPage = () => {
           </Link>
           <span className="text-gray-400 dark:text-gray-500">•</span>
           <Link
-            to={`/category/${data.category}`}
+         
+            to={`/posts?cat=${data.category.toLowerCase().replace(" ", "-")}`}
             className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-105"
           >
             {data.category}
@@ -257,7 +258,7 @@ const SinglePostPage = () => {
                   {["All", "Web Design", "Development", "Databases", "Search Engines", "Marketing"].map((category) => (
                     <Link
                       key={category}
-                      to={category === "All" ? "/" : `/category/${category.toLowerCase().replace(" ", "-")}`}
+                      to={category === "All" ? "/posts" : `/posts?cat=${category.toLowerCase().replace(" ", "-")}`}
                       className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-300"
                     >
                       {category}

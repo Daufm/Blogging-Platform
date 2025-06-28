@@ -67,7 +67,7 @@ const SupportAuthor = (  ) => {
         body: JSON.stringify({
           name:username,
           amount,
-          email,
+          // email,
           method: selectedMethod,
           message,
           authorId: authorId,
@@ -94,16 +94,23 @@ const SupportAuthor = (  ) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
+      {/* Modern floating background shapes */}
+      <div className="fixed -z-10 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-indigo-200 dark:bg-indigo-800 opacity-30 blur-[100px] animate-float1"></div>
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-blue-200 dark:bg-blue-800 opacity-30 blur-[100px] animate-float2"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full bg-purple-200 dark:bg-purple-800 opacity-30 blur-[100px] animate-blob"></div>
+      </div>
+      <div className="max-w-md w-full mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden p-8 border border-gray-100 dark:border-gray-800 relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Support me</h1>
-          <p className="text-gray-600">Your support helps us keep creating great content! Choose an amount and payment method to proceed.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Support me</h1>
+          <p className="text-gray-600 dark:text-gray-300">Your support helps us keep creating great content! Choose an amount and payment method to proceed.</p>
+          <p className="text-gray-600 dark:text-gray-200 text-xs mt-2 bg-red-500 rounded-md p-2 text-white ">Because we are using Testing mode, you will not be charged for the donation.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email Input */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
             <input
               type="email"
@@ -113,11 +120,11 @@ const SupportAuthor = (  ) => {
               className="block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
             />
-          </div>
+          </div> */}
 
           {/* Amount Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Choose an amount to support (birr)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Choose an amount to support (birr)</label>
             <div className="grid grid-cols-3 gap-3 mb-3">
               {presetAmounts.map((amt) => (
                 <button
@@ -127,9 +134,11 @@ const SupportAuthor = (  ) => {
                     setAmount(amt);
                     setCustomAmount('');
                   }}
-                  className={`py-2 px-2 border rounded-md text-sm font-medium ${
-                    amount == amt && !customAmount ? 'bg-blue-100 border-blue-500 text-blue-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
+                  className={`py-2 px-2 border rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600 shadow-sm
+                    ${amount == amt && !customAmount
+                      ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
+                      : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}
+                  `}
                 >
                   {amt} birr
                 </button>
@@ -143,26 +152,28 @@ const SupportAuthor = (  ) => {
                 setAmount(e.target.value);
               }}
               placeholder="Other amount"
-              className="block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600"
             />
           </div>
 
           {/* Payment Methods */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Payment Method</label>
             <div className="space-y-3">
               {paymentMethods.map((method) => (
                 <div
                   key={method.id}
                   onClick={() => setSelectedMethod(method.id)}
-                  className={`flex items-start p-3 border rounded-md cursor-pointer ${
-                    selectedMethod === method.id ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`flex items-start p-3 border rounded-md cursor-pointer transition-all duration-200 shadow-sm
+                    ${selectedMethod === method.id
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
+                      : 'border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'}
+                  `}
                 >
-                  <img src={method.logo} alt={method.name} className="h-8 mr-3 mt-1" />
+                  <img src={method.logo} alt={method.name} className="h-8 mr-3 mt-1 rounded" />
                   <div className="flex-1">
                     <div className="flex items-center">
-                      <span className="text-sm font-medium">{method.name}</span>
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{method.name}</span>
                       {selectedMethod === method.id && (
                         <svg className="ml-auto h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                           <path
@@ -173,7 +184,7 @@ const SupportAuthor = (  ) => {
                         </svg>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{method.description}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{method.description}</p>
                   </div>
                 </div>
               ))}
@@ -182,13 +193,13 @@ const SupportAuthor = (  ) => {
 
           {/* Donation Message */}
           <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">Leave a message (optional)</label>
+            <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Leave a message (optional)</label>
             <textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full border border-gray-300 rounded-md p-2"
+              className="shadow-sm focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600 block w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md p-2"
               placeholder="Write support message..."
             />
           </div>
@@ -196,12 +207,10 @@ const SupportAuthor = (  ) => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!amount || !email}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-              amount && email ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'
-            }`}
+            disabled={!amount}
+            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {amount ? `Donate ${amount} ETB` : 'Select an amount'}
+            Donate Now
           </button>
         </form>
 

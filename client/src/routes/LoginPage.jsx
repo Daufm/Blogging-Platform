@@ -91,164 +91,187 @@ const handleSendCode = async (e)=>{
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-  <div className="w-full max-w-md bg-white border border-gray-200 shadow-xl rounded-xl p-8">
-    <div className="mb-6 text-center">
-      <h2 className="text-3xl font-semibold text-gray-800">Sign In</h2>
-      <p className="text-gray-500 text-sm mt-1">Welcome back. Please enter your details.</p>
-    </div>
-
-    {/* Error Message */}
-    {error && (
-      <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-md text-sm text-red-600 text-center">
-        {error}
-      </div>
-    )}
-
-    <form onSubmit={handleLogin} className="space-y-5">
-      {/* Email */}
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-          Email address
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-          placeholder="you@example.com"
-        />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 relative overflow-hidden">
+      {/* Floating background shapes */}
+      <div className="fixed -z-10 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-blue-200 dark:bg-blue-800 opacity-30 blur-[100px] animate-float1"></div>
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-indigo-200 dark:bg-indigo-800 opacity-30 blur-[100px] animate-float2"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full bg-purple-200 dark:bg-purple-800 opacity-30 blur-[100px] animate-blob"></div>
       </div>
 
-      {/* Password */}
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition pr-10"
-            placeholder="••••••••"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-            aria-label="Toggle password visibility"
-          >
-            {showPassword ? "🙈" : "👁️"}
-          </button>
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl p-8 relative z-10">
+        <div className="mb-8 text-center">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">Sign in to your account to continue</p>
         </div>
-      </div>
 
-      {/* Remember me */}
-      <div className="flex items-center justify-between">
-        
-        <a href="#"
-          onClick={() => setShowChangePassword(true)}
-          className="text-sm text-blue-600 hover:underline">
-          Forgot password?
-        </a>
-
-        
-      </div>
-
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-md transition font-medium shadow"
-      >
-        {isLoading ? "Signing in..." : "Sign In"}
-      </button>
-    </form>
-    {showChangePassword && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <form onSubmit={handleSendCode} className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">Send Magic Link</h2>
-              <label className="block text-sm mb-1">Email</label>
-              <input
-                type="email"
-                value={email2}
-                onChange={(e) => setEmail2(e.target.value)}
-                className="w-full border px-4 py-2 rounded mb-4"
-                placeholder="Enter Email"
-              />
-             <div className="flex justify-between"> 
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-              >
-                Send Code
-              </button>
-              <button
-                onClick={() => setShowChangePassword(false)}
-                type="button"
-                className="bg-blue-500  text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-              >
-                Close
-              </button>
-              </div>
-            </form>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400 text-center">
+            {error}
           </div>
         )}
 
-    {/* Divider */}
-    <div className="my-6 flex items-center justify-center text-gray-400 text-sm">
-      <span className="border-t border-gray-200 flex-1 mr-2"></span>
-      or
-      <span className="border-t border-gray-200 flex-1 ml-2"></span>
-    </div>
+        <form onSubmit={handleLogin} className="space-y-6">
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              Email address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              placeholder="you@example.com"
+            />
+          </div>
 
-    {/* Social */}
-    <div className="grid grid-cols-1 gap-3">
-        <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            const token = credentialResponse.credential;
-            try {
-              const res = await fetch(`${import.meta.env.VITE_API_URL}/users/google-login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token }),
-              });
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none transition-all duration-200 pr-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+          </div>
 
-              const data = await res.json();
+          {/* Forgot password */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowChangePassword(true)}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+            >
+              Forgot password?
+            </button>
+          </div>
 
-              if (res.ok) {
-                localStorage.setItem("token", data.jwtToken);
-                localStorage.setItem("user", JSON.stringify(data.user));
-                navigate("/");
-              } else {
-                setError("Google login failed.");
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Signing in...
+              </div>
+            ) : (
+              "Sign In"
+            )}
+          </button>
+        </form>
+
+        {/* Forgot Password Modal */}
+        {showChangePassword && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reset Password</h2>
+              <form onSubmit={handleSendCode} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={email2}
+                    onChange={(e) => setEmail2(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-200"
+                  >
+                    Send Reset Link
+                  </button>
+                  <button
+                    onClick={() => setShowChangePassword(false)}
+                    type="button"
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="my-8 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+          <span className="border-t border-gray-200 dark:border-gray-700 flex-1 mr-4"></span>
+          or continue with
+          <span className="border-t border-gray-200 dark:border-gray-700 flex-1 ml-4"></span>
+        </div>
+
+        {/* Social Login */}
+        <div className="space-y-3">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              const token = credentialResponse.credential;
+              try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/users/google-login`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ token }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                  localStorage.setItem("token", data.jwtToken);
+                  localStorage.setItem("user", JSON.stringify(data.user));
+                  navigate("/");
+                } else {
+                  setError("Google login failed.");
+                }
+              } catch (err) {
+                setError("Something went wrong.");
               }
-            } catch (err) {
-              setError("Something went wrong.");
-            }
-          }}
-          onError={() => {
-            setError("Google login failed.");
-          }}
-        />
+            }}
+            onError={() => {
+              setError("Google login failed.");
+            }}
+          />
+        </div>
+
+        {/* Bottom link */}
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-8">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline transition-colors">
+            Sign up
+          </Link>
+        </p>
       </div>
-
-
-    {/* Bottom link */}
-    <p className="text-center text-sm text-gray-600 mt-6">
-      Don’t have an account?{" "}
-      <Link to="/register" className="text-blue-600 font-medium hover:underline">
-        Sign up
-      </Link>
-    </p>
-  </div>
-</div>
-
+    </div>
   );
 };
 

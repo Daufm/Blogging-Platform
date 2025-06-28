@@ -22,7 +22,7 @@ const PopularAuthors = () => {
 
     fetchPopularAuthors();
   }, []);
-  console.log(authores)
+  // console.log(authores)
 
   if (isLoading) {
     return (

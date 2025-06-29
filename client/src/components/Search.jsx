@@ -17,7 +17,7 @@ const Search = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-2 rounded-full flex items-center  gap-2">
+    <div className="sm:w-1/2  bg-gray-100 p-2 rounded-full flex items-center  gap-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"

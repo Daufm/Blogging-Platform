@@ -91,6 +91,7 @@ const handleSendCode = async (e)=>{
 
 
   return (
+    
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 relative overflow-hidden">
       {/* Floating background shapes */}
       <div className="fixed -z-10 w-full h-full overflow-hidden pointer-events-none">

@@ -178,7 +178,15 @@ const Navbar = () => {
             <AnimatePresence>
               {open && (
                 <motion.div
-                  className="fixed inset-0 bg-white/90 dark:bg-gray-900/95 backdrop-blur-lg pt-20 px-6 flex flex-col items-center justify-start gap-8 font-medium text-lg"
+                  className={`
+        fixed inset-0 
+        ${theme === "dark"
+          ? "bg-gray-900/90"
+          : "bg-white/80"}
+        backdrop-blur-xl
+        pt-20 px-6 flex flex-col items-center justify-start gap-8 font-medium text-lg z-40
+        transition-colors
+      `}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
@@ -195,7 +203,7 @@ const Navbar = () => {
                       <Link
                         to={link.path}
                         onClick={() => setOpen(false)}
-                        className="relative text-2xl font-medium text-gray-900 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        className="relative text-2xl font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                       >
                         <span className="relative">
                           {link.label}
@@ -216,6 +224,7 @@ const Navbar = () => {
                       to="write"
                       className="relative group"
                       aria-label="Write a post"
+                      onClick={() => setOpen(false)}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
                       <div className="relative flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">

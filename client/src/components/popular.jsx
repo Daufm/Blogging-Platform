@@ -22,6 +22,7 @@ const PopularAuthors = () => {
 
     fetchPopularAuthors();
   }, []);
+  // console.log(authores)
 
   if (isLoading) {
     return (
@@ -93,7 +94,7 @@ const PopularAuthors = () => {
                     )}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {author.posts?.length || 0} posts • {author.followers?.length || 0} followers
+                     {author.followers?.length || 0} followers
                   </p>
                 </div>
 

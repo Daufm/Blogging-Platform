@@ -17,25 +17,21 @@ const Search = () => {
   };
 
   return (
-    <div className="sm:w-1/2  bg-gray-100 p-2 rounded-full flex items-center  gap-2">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="20"
-        height="20"
-        fill="none"
-        stroke="gray"
-      >
-        <circle cx="10.5" cy="10.5" r="7.5" />
-        <line x1="16.5" y1="16.5" x2="22" y2="22" />
-      </svg>
-      <input
-        type="text"
-        placeholder="search a post..."
-        className="bg-transparent outline-none"
-        onKeyDown={handleKeyPress}
-      />
-    </div>
+   <div className="sm:w-1/2 p-2">
+  <div className="relative w-full">
+    {/* Search Icon */}
+    <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-lg"></i>
+
+    {/* Search Input */}
+    <input
+      type="text"
+      placeholder="search a post"
+       className="w-[260px] sm:w-[320px] pl-12 pr-4 py-2 rounded-full border border-gray-400 bg-white text-black placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      onKeyDown={handleKeyPress}
+    />
+  </div>
+</div>
+
   );
 };
 

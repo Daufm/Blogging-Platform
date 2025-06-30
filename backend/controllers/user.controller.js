@@ -185,6 +185,8 @@ export const verifyAndRegister = async (req, res) => {
 // This controller handles user login
 export const Login = async (req, res) => {
   const { email, password } = req.body;
+  const MAX_ATTEMPTS = 4;
+  const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
 
   try {
     // Sanitize and validate input
@@ -197,22 +199,43 @@ export const Login = async (req, res) => {
     }
 
     // Check if the user exists
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if account is locked
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const minutes = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return res.status(423).json({ message: `Account locked. Try again in ${minutes} minute(s).` });
     }
 
     // Verify the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      const newAttempts = (user.loginAttempts || 0) + 1;
+      if (newAttempts >= MAX_ATTEMPTS) {
+        await User.findByIdAndUpdate(user._id, {
+          $set: { lockUntil: new Date(Date.now() + LOCK_TIME), loginAttempts: newAttempts }
+        });
+        return res.status(423).json({ message: "Account locked due to too many failed attempts. Try again later." });
+      } else {
+        await User.findByIdAndUpdate(user._id, { $set: { loginAttempts: newAttempts } });
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
     }
+
+    // Reset attempts on successful login
+    await User.findByIdAndUpdate(user._id, { $set: { loginAttempts: 0, lockUntil: undefined } });
+
+    // Re-fetch the user to get the latest data
+    user = await User.findById(user._id);
 
     // Create a JWT
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" } // Token expires in 1 hour
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({
@@ -231,7 +254,6 @@ export const Login = async (req, res) => {
     res.status(500).json({ message: "Error logging in", error });
   }
 };
-
 
 /// This controller handles user Google Login
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -314,7 +336,7 @@ export const getUserSavedPosts = async (req, res) => {
 
 
 
-
+// This controller handles saving or unsaving a post
 export const savePost = async (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -346,7 +368,7 @@ export const savePost = async (req, res) => {
 
 
 
-
+// This controller fetches the author data and their posts
 export const getAuthor = async (req, res) => {
   try {
     const { username } = req.params;
@@ -391,7 +413,7 @@ export const getAuthor = async (req, res) => {
 
 
 
-
+// This controller fetches the user profile and their posts
 export const getUserProfile = async (req, res)=>{
   try {
     const { username } = req.params;
@@ -445,6 +467,8 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+
+// This controller handles updating the user's password
 export const updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
@@ -478,7 +502,7 @@ export const updatePassword = async (req, res) => {
 };
 
 
-
+// This controller handles updating the author's profile
 export const updateAuthor = async (req, res)=>{
   try {
     const { bio } = req.body;
@@ -496,27 +520,28 @@ export const updateAuthor = async (req, res)=>{
   }
 }
 
+// This controller handles sending a reset password link to the user's email
 export const sendResetPasswordLink = async (req, res) => {
   const { email } = req.body;
 
   try {
-    // 1. Find user by email
+    //  Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      // Important: Don't reveal if the email exists or not
+      
       return res.status(200).json({ message: "If that email is registered, a reset link was sent." });
     }
 
-    // 2. Generate reset token
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenExpire = Date.now() + 30 * 60 * 1000; // expires in 30 mins
 
-    // 3. Save to user record
+    //  Save to user record
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpire = resetTokenExpire;
     await user.save();
 
-    // 4. Send email
+    //  Send email
     const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
 
     await sendEmail({
@@ -542,6 +567,8 @@ export const sendResetPasswordLink = async (req, res) => {
   }
 };
 
+
+// This controller handles resetting the user's password using the reset token
 export const resetPassword = async(req, res)=>{
   const { token, newPassword } = req.body;
 
@@ -572,8 +599,8 @@ export const resetPassword = async(req, res)=>{
  }
 }
 
-// Get popular authors
 
+// Get popular authors
 export const getPopularAuthors = async (req, res) => {
   try {
     const users = await User.find({}) // Add filter like { role: 'author' } if needed

@@ -72,7 +72,15 @@ const LoginPage = () => {
 
 
     } catch (err) {
-      setError(err.message || "Login failed. Please try again.");
+       if (err.response?.status === 423) {
+            // Account locked
+            setError(err.response.data.message);
+            toast.error(err.response.data.message);
+          } else if (err.response?.data?.message) {
+            setError(err.response.data.message);
+          } else {
+            setError("Login failed. Please try again.");
+          }
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +117,7 @@ const handleSendCode = async (e)=>{
 
     }
   } catch (err) {
+   
     setError(err.response?.data?.message || "Something went wrong. Please try again.");
     setShowChangePassword(false)
   } finally {

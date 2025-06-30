@@ -72,7 +72,9 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
-
+    //for login attempts
+    loginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date },
   
     followers: [
       {

@@ -12,7 +12,7 @@ const Comment = ({ comment, postId }) => {
 
   const token = localStorage.getItem("token");
   const user = token ? JSON.parse(localStorage.getItem("user")) : null;
-  const role = user?.role;
+  const role = user?.role
 
   const queryClient = useQueryClient();
 
@@ -56,7 +56,8 @@ const Comment = ({ comment, postId }) => {
   });
 
   // console.log("Comment:", comment);
-  // console.log("user name", user.username)
+  console.log("user name", user.username)
+  console.log("role ", role)
 
   const isAuthor = user && comment.user?.username === user.username;
 

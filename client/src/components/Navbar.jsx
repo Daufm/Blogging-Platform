@@ -178,20 +178,22 @@ const Navbar = () => {
             <AnimatePresence>
               {open && (
                 <motion.div
-                  className={`
-        fixed inset-0 
-        ${theme === "dark"
-          ? "bg-gray-900/90"
-          : "bg-white/80"}
-        backdrop-blur-xl
-        pt-20 px-6 flex flex-col items-center justify-start gap-8 font-medium text-lg z-40
-        transition-colors
-      `}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={mobileNavVariants}
-                >
+                    className={`
+                      fixed inset-0 
+                      ${theme === "dark"
+                        ? "bg-gray-900/80"
+                        : "bg-white/80"}
+                      backdrop-blur-xl
+                      pt-20 px-6 flex flex-col items-center justify-start gap-8 font-medium text-lg z-40
+                      transition-colors
+                    `}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={mobileNavVariants}
+                  >
+  
+
                   {navLinks.map((link, i) => (
                     <motion.div
                       key={link.path}
@@ -283,7 +285,7 @@ const Navbar = () => {
                       </Link>
                     )}
                   </motion.div>
-                </motion.div>
+             </motion.div>
               )}
             </AnimatePresence>
           </div>

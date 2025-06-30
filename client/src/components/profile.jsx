@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Bookmark as BookmarkIcon } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -24,6 +25,8 @@ import {
   TextField,
   Typography,
   Tooltip,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -43,6 +46,7 @@ import PostListItem from "../components/PostListItem";
 import Image from "./Image";
 import Upload from "../components/Upload";
 import ResetPassword from "./resetpass";
+import SavedPosts from "./SavedPosts"
 
 const fetchUserData = async (username) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile/${username}`);
@@ -124,6 +128,7 @@ const UserProfile = () => {
   const [cbeAccount, setCbeAccount] = useState('');
   const [phoneNo, setPhoneNumber] = useState('');
   const [byMecoffe, setByMecoffe] = useState('');
+  const [tab, setTab] = useState(0);
 
   useEffect(() => {
     if (data) {
@@ -204,6 +209,35 @@ const withdrawMutation = useMutation({
     }
   };
 
+//saved post quer
+// const SavedPosts = ({ userId }) => {
+//   const {
+//     data: savedPosts,
+//     isLoading: savedLoading,
+//   } = useQuery({
+//     queryKey: ["savedPosts", userId],
+//     queryFn: async () => {
+//       const res = await axios.get(
+//         `${import.meta.env.VITE_API_URL}/users/saved/${userId}`,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         }
+//       );
+//       return res.data;
+//     },
+//     enabled: !!userId,
+//     onError: (err) => {
+//       toast.error(err.response?.data?.message || "Failed to load saved posts.");
+//     },
+//   });
+
+//   const sortedPosts = savedPosts?.slice().sort(
+//     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//   );
+
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -232,9 +266,9 @@ const withdrawMutation = useMutation({
 
   return (
     <Box
-      sx={{ 
-        bgcolor: "background.default", 
-        minHeight: "100vh", 
+      sx={{
+        bgcolor: "background.default",
+        minHeight: "100vh",
         py: 4,
         background: 'linear-gradient(to bottom, #f6f8fa, #ffffff)',
         '.dark &': {
@@ -280,7 +314,7 @@ const withdrawMutation = useMutation({
                         variant="contained"
                         color="success"
                         fullWidth
-                        disabled={walletData?.balance < 10}
+                        disabled={walletData?.balance < 100}
                         onClick={() => setWithdrawDialogOpen(true)}
                         sx={{ py: 1.5 }}
                       >
@@ -491,6 +525,24 @@ const withdrawMutation = useMutation({
                 </Box>
               )}
             </Paper>
+            {/* Saved Posts Section */}
+        <Paper
+  elevation={3}
+  sx={{
+    borderRadius: 3,
+    overflow: 'hidden',
+    mt: 4
+  }}
+  className="dark:bg-gray-800 bg-white"
+>
+  
+  <Box>
+      <SavedPosts userId={userId} />
+  </Box>
+</Paper>
+
+
+
           </Grid>
         </Grid>
       </Container>

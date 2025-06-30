@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Users, FileText, AlertTriangle, CalendarCheck, UserPlus } from "lucide-react";
+import DOMPurify from "dompurify";
 
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
@@ -48,7 +49,7 @@ const AdminDashboard = () => {
 const Sidebar = () => {
   const links = [
     { path: "/admin", label: "Dashboard" },
-    { path: "/admin/home", label: "Posts" },
+    // { path: "/admin/home", label: "Posts" },
     { path: "/admin/approve", label: "Approve Blogger" },
     { path: "/admin/reports", label: "Manage Reports" },
     { path: "/admin/analytics", label: "Manage Analytics" },
@@ -144,7 +145,7 @@ const Dashboard = () => {
         <MagicStat label="Active Users" value={userCount} icon="🟢" />
         <MagicStat label="Total Posts" value={postCount} icon="📝" />
         <MagicStat label="Reports" value={Math.floor(Math.random() * 10)} icon="🚩" />
-        <MagicStat label="New Signups" value={Math.floor(Math.random() * 50)} icon="✨" />
+        {/* <MagicStat label="New Signups" value={Math.floor(Math.random() * 50)} icon="✨" /> */}
       </div>
 
       {/* Magic: Motivational Quote */}
@@ -379,6 +380,10 @@ const Report = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Get token INSIDE the component
+  const token = localStorage.getItem("token");
+
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -447,6 +452,8 @@ const handleDismissReport = async (reportId) => {
   }
 };
 
+  console.log("Reports:", reports); // Debugging line
+
 
   return (
     <section>
@@ -457,31 +464,62 @@ const handleDismissReport = async (reportId) => {
       ) : (reports?.length ?? 0) === 0 ? (  
         <p className="text-gray-600">No reports found.</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {reports.map((report) => (
-           <div key={report._id} className="p-4 border rounded shadow">
-           <p><strong>Post Title:</strong> {report.postId?.title}</p>
-           <p><strong>Content:</strong> {report.postId?.content?.substring(0, 100)}...</p>
-           <p><strong>Reason:</strong> {report.reason}</p>
-           <p><strong>Reported By:</strong> {report.reportedBy?.username || report.reportedBy?.email}</p>
-           <p className="text-sm text-gray-500">{new Date(report.reportedAt).toLocaleString()}</p>
-           <div className="flex space-x-2 mt-2">
-           <button
-              onClick={() => handleDeletePost(report.postId._id)}
-              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors duration-300"
+            <div
+              key={report._id}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg p-6 flex flex-col gap-3 transition hover:shadow-xl"
             >
-              Delete Post
-            </button>
-
-            <button
-              onClick={() => handleDismissReport(report._id)}
-              className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400 transition-colors duration-300"
-            >
-              Dismiss Report
-           </button>
-          </div>
-         
-         </div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                  {report.postId?.title || "Untitled Post"}
+                </h3>
+                <span className="inline-block bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 text-xs px-3 py-1 rounded-full font-semibold">
+                  {report.reason}
+                </span>
+              </div>
+              <div className="mb-2 text-gray-700 dark:text-gray-200 text-sm">
+                <span className="font-semibold">Content Preview:</span>
+                <div
+                  className="mt-1 max-h-20 overflow-hidden text-ellipsis"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      report.postId?.content?.substring(0, 120) + (report.postId?.content?.length > 120 ? "..." : "")
+                    ),
+                  }}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                <span className="bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded">
+                  Reported by: {report.reportedBy?.username || report.reportedBy?.email}
+                </span>
+                <span className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+                  {new Date(report.reportedAt).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => handleDeletePost(report.postId._id)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-medium transition"
+                >
+                  Delete Post
+                </button>
+                <button
+                  onClick={() => handleDismissReport(report._id)}
+                  className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-lg font-medium transition"
+                >
+                  Dismiss
+                </button>
+                <a
+                  href={`/${report.postId?.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg font-medium transition"
+                >
+                  View Post
+                </a>
+              </div>
+            </div>
           ))}
         </div>
       )}

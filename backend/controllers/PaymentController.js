@@ -13,11 +13,8 @@ const { CHAPA_SECRET_KEY, CLIENT_URL } = process.env;
 export const initiateDonation = async (req, res) => {
   console.log('Initiating donation with body:', req.body);
   
-  let { amount, name, message ,method ,authorId } = req.body;
+  let { amount, name, email, message ,method ,authorId } = req.body;
  
-  const {EMAIL_USER} = process.env;
-  let email = EMAIL_USER;
-
 
   amount = amount ? parseFloat(amount) : 0;
   name = name?.trim() || 'Test User';
@@ -222,7 +219,7 @@ export const withdarFunds = async (req, res) => {
     }
 
     // Check if the balance is sufficient for withdrawal
-    if (amount <= 10) {
+    if (amount <= 100 || amount > wallet.balance) {
       return res.status(400).json({ error: 'Insufficient balance for withdrawal' });
     }
 
@@ -233,7 +230,7 @@ export const withdarFunds = async (req, res) => {
       status: 'pending',
     });
     // Deduct the withdrawal amount from the wallet balance
-    wallet.balance = wallet.balance - amount; 
+    
     // Update total received
     wallet.totalReceived = wallet.totalReceived + amount; 
 

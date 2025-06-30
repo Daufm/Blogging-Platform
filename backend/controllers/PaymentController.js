@@ -10,10 +10,12 @@ dotenv.config(); // Ensure environment variables are loaded
 
 const { CHAPA_SECRET_KEY, CLIENT_URL } = process.env;
 
+const email = process.env.EMAIL_USER ;
+
 export const initiateDonation = async (req, res) => {
   console.log('Initiating donation with body:', req.body);
   
-  let { amount, name, email, message ,method ,authorId } = req.body;
+  let { amount, name,email , message ,method ,authorId } = req.body;
  
 
   amount = amount ? parseFloat(amount) : 0;
@@ -23,9 +25,11 @@ export const initiateDonation = async (req, res) => {
   authorId= authorId?.trim() || null;
   method = method?.trim() || 'chapa'; // Default to 'chapa' if not provided
 
- 
-
-
+  // Validate amount
+  if (isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount. Please enter a valid donation amount.' });
+  }
+  
 
   try {
     const tx_ref = `tx-${Date.now()}`;

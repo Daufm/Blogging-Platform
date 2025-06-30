@@ -15,13 +15,14 @@ const { CHAPA_SECRET_KEY, CLIENT_URL,EMAIL_USER } = process.env;
 export const initiateDonation = async (req, res) => {
   console.log('Initiating donation with body:', req.body);
 
-  console.log('Using email:', EMAIL_USER);
+
+
   let { amount, name , message ,method ,authorId } = req.body;
  
 
   amount = amount ? parseFloat(amount) : 0;
   name = name?.trim() || 'Test User';
-  email = EMAIL_USER?.trim() || 'test@example.com';
+  email = "fuadmohammed368@gmail.com".trim() || 'test@example.com';
   message = message?.trim() || '';
   authorId= authorId?.trim() || null;
   method = method?.trim() || 'chapa'; // Default to 'chapa' if not provided

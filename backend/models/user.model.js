@@ -44,10 +44,12 @@ const userSchema = new Schema(
       enum: ["male", "female", "other"],
       default: "other",
     },
-    savedPosts: {
-      type: [String],
-      default: [],
-    },
+    savedPosts: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Post",
+  },
+],
     isGoogleUser: {
       type: Boolean,
       default: false,

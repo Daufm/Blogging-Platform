@@ -11,10 +11,13 @@ import PaymentRouter from "./routes/PaymentRouter.js"
 import authorRouter from "./routes/authorRouter.js";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+
 
 dotenv.config();
 
 const app = express();
+const __dirname = path.resolve();
 
 // Enable CORS
 console.log("CORS enabled for:", process.env.CLIENT_URL);
@@ -43,6 +46,11 @@ app.use("/analytics", analyticsRoutes);
 app.use("/request",handleRequest);
 app.use("/payment", PaymentRouter)
 app.use("/author", authorRouter);
+
+
+app.use(express.static(path.join(__dirname, '/frontend/dist')));
+
+
 
 // Error handling middleware
 app.use((error, req, res, next) => {

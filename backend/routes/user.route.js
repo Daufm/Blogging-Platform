@@ -9,7 +9,7 @@ const router = express.Router()
 
 router.patch("/:id/ban", authenticate, BanUser)
 router.delete("/:id", authenticate, DeleteUser)
-router.get("/saved", getUserSavedPosts)
+router.get("/saved/:id", getUserSavedPosts)
 router.patch("/save", savePost)
 router.post("/sendOtp", requestOtp)
 router.post("/verify-otp" ,verifyAndRegister)

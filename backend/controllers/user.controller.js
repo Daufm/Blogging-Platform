@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
+import mongoose from "mongoose";
 import 'dotenv/config';
 import TempOTP from "../models/TempOTP.js";
 import nodemailer from "nodemailer";
@@ -288,27 +289,26 @@ export const GoogleLogin = async (req, res) => {
 
 
 export const getUserSavedPosts = async (req, res) => {
+  const userId = req.params.id || req.user._id; // Use req.user._id if available, otherwise use the ID from params
+
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json("Not authenticated!");
-    }
-
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decodedToken) {
-      return res.status(401).json("Invalid token");
-    }
-
-    const user = await User.findById(decodedToken.id).populate("savedPosts");
-
+    const user = await User.findById(userId)
+      .populate("savedPosts", "title desc slug img createdAt category user")
+      .select("savedPosts");
     if (!user) {
-      return res.status(404).json("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(user.savedPosts);
+    const savedPosts = user.savedPosts.map(post => ({
+      ...post.toObject(),
+      user: post.user
+          ? { username: post.user.username, img: post.user.img }
+          : { username: "Unknown", img: "" }
+    }));
+    res.status(200).json(savedPosts);
   } catch (error) {
-    console.error("Error getting saved posts:", error);
-    res.status(500).json("Something went wrong");
+    console.error("Error fetching saved posts:", error);
+    res.status(500).json({ message: "Failed to fetch saved posts" });
   }
 };
 
@@ -320,22 +320,23 @@ export const savePost = async (req, res) => {
   const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
   const postId = req.body.postId;
+  const postObjectId = new mongoose.Types.ObjectId(postId);
 
   if (!decodedToken) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const user = await User.findOne({ _id: decodedToken.id });
+  const user = await User.findById(decodedToken.id);
 
-  const isSaved = user.savedPosts.some((p) => p === postId);
+  const isSaved = user.savedPosts.some((savedId) => savedId.equals(postObjectId));
 
   if (!isSaved) {
     await User.findByIdAndUpdate(user._id, {
-      $push: { savedPosts: postId },
+      $push: { savedPosts: postObjectId },
     });
   } else {
     await User.findByIdAndUpdate(user._id, {
-      $pull: { savedPosts: postId },
+      $pull: { savedPosts: postObjectId },
     });
   }
 

@@ -312,7 +312,8 @@ export const getReports = async (req, res) => {
   try {
     const reports = await Report.find()
       .populate('reportedBy', 'username email')
-      .populate('postId', 'title content')
+      .populate('postId', 'title content slug')
+      
       .sort({ reportedAt: -1 });
 
     //console.log("✅ Reports fetched successfully:", reports.length);

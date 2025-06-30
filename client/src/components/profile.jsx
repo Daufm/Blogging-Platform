@@ -46,10 +46,13 @@ import PostListItem from "../components/PostListItem";
 import Image from "./Image";
 import Upload from "../components/Upload";
 import ResetPassword from "./resetpass";
-import SavedPosts from "./SavedPosts"
+import SavedPosts from "./SavedPosts";
+import { AnimatePresence, motion } from "framer-motion";
 
 const fetchUserData = async (username) => {
-  const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile/${username}`);
+  const res = await axios.get(
+    `${import.meta.env.VITE_API_URL}/users/profile/${username}`
+  );
   return res.data;
 };
 
@@ -85,12 +88,15 @@ const UserProfile = () => {
       setIsEditing(false);
       toast.success("Profile updated successfully!");
       if (isOwner) {
-        localStorage.setItem("user", JSON.stringify({
-          ...updatedUser,
-        }));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...updatedUser,
+          })
+        );
       }
       if (updatedUser.username !== username) {
-        window.location.href = `/profile/${updatedUser.username}`; 
+        window.location.href = `/profile/${updatedUser.username}`;
       }
     },
     onError: (error) => {
@@ -102,19 +108,20 @@ const UserProfile = () => {
     queryKey: ["wallet", userId],
     queryFn: async () => {
       if (data?.user?.role !== "author") return null;
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/payment/donations/wallet/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/payment/donations/wallet/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       return res.data;
-
     },
     enabled: !!userId && data?.user?.role === "author",
-    onError : (message) =>{
+    onError: (message) => {
       toast.error(message || "Failed to load wallet data.");
-    }
-
+    },
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -124,10 +131,10 @@ const UserProfile = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [progress, setProgress] = useState(0);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [cbeAccount, setCbeAccount] = useState('');
-  const [phoneNo, setPhoneNumber] = useState('');
-  const [byMecoffe, setByMecoffe] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [cbeAccount, setCbeAccount] = useState("");
+  const [phoneNo, setPhoneNumber] = useState("");
+  const [byMecoffe, setByMecoffe] = useState("");
   const [tab, setTab] = useState(0);
 
   useEffect(() => {
@@ -144,10 +151,10 @@ const UserProfile = () => {
   };
 
   const handleEditProfile = () => {
-  setUsername(data.user?.username || "");
-  setBio(data.user?.bio || "");
-  setIsEditing(true);
-};
+    setUsername(data.user?.username || "");
+    setBio(data.user?.bio || "");
+    setIsEditing(true);
+  };
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
@@ -155,9 +162,8 @@ const UserProfile = () => {
     if (!username1 && !bio && !img && !cbeAccount && !phoneNo) {
       return toast.error("Update at least one field.");
     }
-   
-    const updatedData = {
 
+    const updatedData = {
       bio,
       username: username1,
       img: img?.filePath || data.img,
@@ -170,14 +176,17 @@ const UserProfile = () => {
 
   const handleAuthorRequest = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/request/request-author`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ userId }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/request/request-author`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
       const result = await res.json();
       if (res.status === 400) return toast.error(result.message);
       if (res.ok) toast.success("Request sent to admin!");
@@ -186,17 +195,20 @@ const UserProfile = () => {
     }
   };
 
-const withdrawMutation = useMutation({
-  mutationFn: (amount) =>
-    axios.post(`${import.meta.env.VITE_API_URL}/payment/withdraw/${data.user._id}`, { amount }),
-  onSuccess: () => {
-    toast.success("Withdrawal request sent successfully!");
-    queryClient.invalidateQueries(["wallet", userId]);
-  },
-  onError: (err) => {
-    toast.error(err.response?.data?.message || "Failed to request withdrawal.");
-  },
-});
+  const withdrawMutation = useMutation({
+    mutationFn: (amount) =>
+      axios.post(
+        `${import.meta.env.VITE_API_URL}/payment/withdraw/${data.user._id}`,
+        { amount }
+      ),
+    onSuccess: () => {
+      toast.success("Withdrawal request sent successfully!");
+      queryClient.invalidateQueries(["wallet", userId]);
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to request withdrawal.");
+    },
+  });
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -209,38 +221,20 @@ const withdrawMutation = useMutation({
     }
   };
 
-//saved post quer
-// const SavedPosts = ({ userId }) => {
-//   const {
-//     data: savedPosts,
-//     isLoading: savedLoading,
-//   } = useQuery({
-//     queryKey: ["savedPosts", userId],
-//     queryFn: async () => {
-//       const res = await axios.get(
-//         `${import.meta.env.VITE_API_URL}/users/saved/${userId}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//         }
-//       );
-//       return res.data;
-//     },
-//     enabled: !!userId,
-//     onError: (err) => {
-//       toast.error(err.response?.data?.message || "Failed to load saved posts.");
-//     },
-//   });
-
-//   const sortedPosts = savedPosts?.slice().sort(
-//     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-//   );
-
+  const tabVariants = {
+    initial: { opacity: 0, x: 40 },
+    animate: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, x: -40, transition: { duration: 0.2 } },
+  };
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <CircularProgress size={48} />
       </Box>
     );
@@ -256,7 +250,13 @@ const withdrawMutation = useMutation({
           <Typography variant="body1" paragraph>
             {error.message}
           </Typography>
-          <Button component={Link} to="/" variant="contained" color="primary" sx={{ mt: 2 }}>
+          <Button
+            component={Link}
+            to="/"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+          >
             Return home
           </Button>
         </Paper>
@@ -270,106 +270,122 @@ const withdrawMutation = useMutation({
         bgcolor: "background.default",
         minHeight: "100vh",
         py: 4,
-        background: 'linear-gradient(to bottom, #f6f8fa, #ffffff)',
-        '.dark &': {
-          background: 'linear-gradient(to bottom, #111827, #1f2937)'
-        }
+        background: "linear-gradient(to bottom, #f6f8fa, #ffffff)",
+        ".dark &": {
+          background: "linear-gradient(to bottom, #111827, #1f2937)",
+        },
       }}
     >
+      
       {/* Profile Header Section */}
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           {/* Left Column - Profile Picture and Wallet */}
-          
+
           <Grid item xs={12} md={4}>
-          <Stack
-            direction={{ xs: 'column', md: 'row-reverse' }}
-            spacing={10}
-            alignItems="flex-start"
-          >
-            {/* Wallet Section */}
-            {data.user?.role === "author" && (
-              <Box sx={{ flex: 1 }}>
-                <Card elevation={3} sx={{ borderRadius: 3, p: 3 }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Donation Wallet
-                  </Typography>
+            <Stack
+              direction={{ xs: "column", md: "row-reverse" }}
+              spacing={10}
+              alignItems="flex-start"
+            >
+              {/* Wallet Section */}
+              {data.user?.role === "author" && (
+                <Box sx={{ flex: 1 }}>
+                  <Card elevation={3} sx={{ borderRadius: 3, p: 3 }}>
+                    <Typography variant="h6" fontWeight={700} gutterBottom>
+                      Donation Wallet
+                    </Typography>
 
-                  {walletLoading ? (
-                    <Box display="flex" justifyContent="center" py={2}>
-                      <CircularProgress size={24} />
-                    </Box>
-                  ) : (
-                    <Stack spacing={2}>
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Current Balance
-                        </Typography>
-                       <Typography variant="h5" fontWeight={700} color="success.main">
-                          {walletData?.balance !== undefined ? `${walletData.balance} ETB` : "0 ETB"}
-                        </Typography>
+                    {walletLoading ? (
+                      <Box display="flex" justifyContent="center" py={2}>
+                        <CircularProgress size={24} />
                       </Box>
+                    ) : (
+                      <Stack spacing={2}>
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">
+                            Current Balance
+                          </Typography>
+                          <Typography
+                            variant="h5"
+                            fontWeight={700}
+                            color="success.main"
+                          >
+                            {walletData?.balance !== undefined
+                              ? `${walletData.balance} ETB`
+                              : "0 ETB"}
+                          </Typography>
+                        </Box>
 
-                      <Button
-                        variant="contained"
-                        color="success"
-                        fullWidth
-                        disabled={walletData?.balance < 100}
-                        onClick={() => setWithdrawDialogOpen(true)}
-                        sx={{ py: 1.5 }}
-                      >
-                        Withdraw Funds
-                      </Button>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          fullWidth
+                          disabled={walletData?.balance < 100}
+                          onClick={() => setWithdrawDialogOpen(true)}
+                          sx={{ py: 1.5 }}
+                        >
+                          Withdraw Funds
+                        </Button>
 
-                      {walletData?.balance < 100 && (
-                        <Typography variant="caption" color="text.secondary" textAlign="center" >
-                          Minimum 100 ETB required to withdraw.
-                        </Typography>
-                      )}
-                    </Stack>
+                        {walletData?.balance < 100 && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            textAlign="center"
+                          >
+                            Minimum 100 ETB required to withdraw.
+                          </Typography>
+                        )}
+                      </Stack>
+                    )}
+                  </Card>
+                </Box>
+              )}
+
+              {/* Profile Picture */}
+              <Box sx={{ flex: 1 }}>
+                <Card
+                  elevation={3}
+                  sx={{
+                    borderRadius: 3,
+                    p: 3,
+                    textAlign: "center",
+                    position: "relative",
+                  }}
+                >
+                  <Image
+                    src={data.user?.img || "/default-avatar.png"}
+                    alt={data.user?.username}
+                    w={180}
+                    h={180}
+                    className="rounded-full border-4 border-primary-main shadow-lg object-cover mx-auto"
+                  />
+                  {isOwner && isEditing && (
+                    <Box mt={2}>
+                      <Upload type="image" setProgress={setProgress} setData={setImg}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<UploadIcon />}
+                          fullWidth
+                          sx={{
+                            mt: 1,
+                            bgcolor: "background.paper",
+                            color: "primary.main",
+                            "&:hover": { bgcolor: "background.paper", opacity: 0.9 },
+                          }}
+                        >
+                          Change Photo
+                        </Button>
+                      </Upload>
+                    </Box>
                   )}
                 </Card>
               </Box>
-            )}
+            </Stack>
+          </Grid>
 
-            {/* Profile Picture */}
-            <Box sx={{ flex: 1 }}>
-              <Card elevation={3} sx={{ borderRadius: 3, p: 3, textAlign: "center" }}>
-                <Image
-                  src={data.user?.img || "/default-avatar.png"}
-                  alt={data.user?.username}
-                  w={180}
-                  h={180}
-                  className="rounded-full border-4 border-primary-main shadow-lg object-cover mx-auto"
-                />
-                {isOwner && isEditing && (
-                  <Box mt={2}>
-                    <Upload type="image" setProgress={setProgress} setData={setImg}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<UploadIcon />}
-                        fullWidth
-                        sx={{
-                          mt: 1,
-                          bgcolor: "background.paper",
-                          color: "primary.main",
-                          "&:hover": { bgcolor: "background.paper", opacity: 0.9 },
-                        }}
-                      >
-                        Change Photo
-                      </Button>
-                    </Upload>
-                  </Box>
-                )}
-              </Card>
-            </Box>
-          </Stack>
-
-        </Grid>
-
-
-          
           {/* Right Column - Profile Info and Posts */}
           <Grid item xs={12} md={8}>
             <Paper
@@ -377,14 +393,23 @@ const withdrawMutation = useMutation({
               sx={{
                 p: { xs: 3, md: 4 },
                 borderRadius: 3,
-                mb: 3
+                mb: 3,
               }}
               className="dark:bg-gray-800 bg-white"
             >
               <Stack spacing={3}>
                 {/* User Info Header */}
-                <Box display="flex" alignItems="center" flexWrap="wrap" gap={1}>
-                  <Typography variant="h4" fontWeight={700} className="dark:text-gray-300">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexWrap="wrap"
+                  gap={1}
+                >
+                  <Typography
+                    variant="h4"
+                    fontWeight={700}
+                    className="dark:text-gray-300"
+                  >
                     {data.user?.username}
                   </Typography>
                   {data.user?.role === "admin" && (
@@ -402,9 +427,13 @@ const withdrawMutation = useMutation({
 
                 {/* Bio */}
                 <Box>
-                  <Typography variant="body1" sx={{ fontSize: 18 }} className="dark:text-gray-300">
+                  <Typography
+                    variant="body1"
+                    sx={{ fontSize: 18 }}
+                    className="dark:text-gray-300"
+                  >
                     {data.user?.bio || (
-                      <span style={{ color: "#aaa", fontStyle: 'italic' }}>
+                      <span style={{ color: "#aaa", fontStyle: "italic" }}>
                         No bio yet. Add something about yourself!
                       </span>
                     )}
@@ -418,10 +447,10 @@ const withdrawMutation = useMutation({
                     target="_blank"
                     rel="noopener noreferrer"
                     startIcon={<LinkIcon />}
-                    sx={{ 
-                      alignSelf: 'flex-start',
+                    sx={{
+                      alignSelf: "flex-start",
                       fontWeight: 500,
-                      color: 'primary.main'
+                      color: "primary.main",
                     }}
                   >
                     {data.website.replace(/(^\w+:|^)\/\//, "")}
@@ -472,83 +501,109 @@ const withdrawMutation = useMutation({
               </Stack>
             </Paper>
 
-            {/* Posts Section */}
+            {/* Posts & Saved Posts Section with Animated Tabs */}
             <Paper
               elevation={3}
               sx={{
                 borderRadius: 3,
-                overflow: 'hidden'
+                overflow: "hidden",
+                mt: 4,
               }}
               className="dark:bg-gray-800 bg-white"
             >
-              <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
-                <Typography variant="h6" component="h2" fontWeight={700}>
-                  <Box display="flex" alignItems="center" gap={1} className="dark:text-gray-300">
-                    <ArticleIcon color="primary" />
-                    Posts by {data.username}
-                  </Box>
-                </Typography>
-              </Box>
-
-              {data.posts && data.posts.length === 0 ? (
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  textAlign="center"
-                  py={8}
-                >
-                  <ImageIcon sx={{ fontSize: 80, color: "text.disabled", mb: 2 }} />
-                  <Typography variant="h6" gutterBottom>
-                    No posts yet
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    When {data.username} creates posts, they'll appear here.
-                  </Typography>
-                  {isOwner && (
-                    <Button
-                      component={Link}
-                      to="/write"
-                      variant="contained"
-                      startIcon={<AddIcon />}
-                      sx={{ mt: 2, fontWeight: 600 }}
+              <Tabs
+                value={tab}
+                onChange={(_, v) => setTab(v)}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="fullWidth"
+                sx={{ borderBottom: 1, borderColor: "divider" }}
+              >
+                <Tab
+                  icon={<ArticleIcon />}
+                  label={`Posts by ${data.username}`}
+                />
+                <Tab icon={<BookmarkIcon />} label="Saved Posts" />
+              </Tabs>
+              <Box sx={{ p: 3, minHeight: 200 }}>
+                <AnimatePresence mode="wait">
+                  {tab === 0 && (
+                    <motion.div
+                      key="posts"
+                      variants={tabVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      style={{ width: "100%" }}
                     >
-                      Create your first post
-                    </Button>
+                      <Stack spacing={2} width="100%">
+                        {data.posts && data.posts.length === 0 ? (
+                          <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="center"
+                            textAlign="center"
+                            py={8}
+                            width="100%"
+                          >
+                            <ImageIcon sx={{ fontSize: 80, color: "text.disabled", mb: 2 }} />
+                            <Typography variant="h6" gutterBottom>
+                              No posts yet
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              paragraph
+                            >
+                              When {data.username} creates posts, they'll appear here.
+                            </Typography>
+                            {isOwner && (
+                              <Button
+                                component={Link}
+                                to="/write"
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                sx={{ mt: 2, fontWeight: 600 }}
+                              >
+                                Create your first post
+                              </Button>
+                            )}
+                          </Box>
+                        ) : (
+                          data.posts &&
+                          data.posts.map((post) => (
+                            <PostListItem key={post._id} post={post} />
+                          ))
+                        )}
+                      </Stack>
+                    </motion.div>
                   )}
-                </Box>
-              ) : (
-                <Box>
-                  {data.posts && data.posts.map((post) => (
-                    <PostListItem key={post._id} post={post} />
-                  ))}
-                </Box>
-              )}
+                  {tab === 1 && (
+                    <motion.div
+                      key="saved"
+                      variants={tabVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      style={{ width: "100%" }}
+                    >
+                      <SavedPosts userId={userId} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Box>
             </Paper>
-            {/* Saved Posts Section */}
-        <Paper
-  elevation={3}
-  sx={{
-    borderRadius: 3,
-    overflow: 'hidden',
-    mt: 4
-  }}
-  className="dark:bg-gray-800 bg-white"
->
-  
-  <Box>
-      <SavedPosts userId={userId} />
-  </Box>
-</Paper>
-
-
-
           </Grid>
         </Grid>
       </Container>
 
       {/* Edit Profile Modal */}
-      <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={isEditing}
+        onClose={() => setIsEditing(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle className="dark:bg-slate-100">Edit Profile</DialogTitle>
         <form onSubmit={handleSaveProfile} className="dark:bg-slate-200">
           <DialogContent>
@@ -562,11 +617,11 @@ const withdrawMutation = useMutation({
                 inputProps={{ maxLength: 32 }}
                 required
                 sx={{
-                  '& .MuiInputBase-input': { color: 'inherit' },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  "& .MuiInputBase-input": { color: "inherit" },
+                  "& .MuiInputLabel-root": { color: "text.secondary" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
                 }}
               />
               <TextField
@@ -580,11 +635,11 @@ const withdrawMutation = useMutation({
                 inputProps={{ maxLength: 200 }}
                 helperText={`${bio.length}/200`}
                 sx={{
-                  '& .MuiInputBase-input': { color: 'inherit' },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  "& .MuiInputBase-input": { color: "inherit" },
+                  "& .MuiInputLabel-root": { color: "text.secondary" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
                 }}
               />
               {/*Phone Number */}
@@ -596,19 +651,24 @@ const withdrawMutation = useMutation({
                 margin="normal"
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 InputProps={{
-                  
                   startAdornment: (
-                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "text.secondary",
+                      }}
+                    >
                       <Typography variant="body2">+251</Typography>
                     </Box>
                   ),
                 }}
                 sx={{
-                  '& .MuiInputBase-input': { color: 'inherit' },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  "& .MuiInputBase-input": { color: "inherit" },
+                  "& .MuiInputLabel-root": { color: "text.secondary" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
                 }}
               />
 
@@ -619,33 +679,29 @@ const withdrawMutation = useMutation({
                 fullWidth
                 margin="normal"
                 onChange={(e) => setCbeAccount(e.target.value)}
-                InputProps={{
-                  
-                }}
+                InputProps={{}}
                 sx={{
-                  '& .MuiInputBase-input': { color: 'inherit' },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  "& .MuiInputBase-input": { color: "inherit" },
+                  "& .MuiInputLabel-root": { color: "text.secondary" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
                 }}
               />
-             {/* buy me coffe link */}
-             <TextField
+              {/* buy me coffe link */}
+              <TextField
                 label="Buy Me a Coffee Link"
                 value={byMecoffe || ""}
                 fullWidth
                 margin="normal"
                 onChange={(e) => setByMecoffe(e.target.value)}
-                InputProps={{
-                
-                }}
+                InputProps={{}}
                 sx={{
-                  '& .MuiInputBase-input': { color: 'inherit' },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                  "& .MuiInputBase-input": { color: "inherit" },
+                  "& .MuiInputLabel-root": { color: "text.secondary" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
                 }}
               />
 
@@ -668,7 +724,11 @@ const withdrawMutation = useMutation({
                     <Stack alignItems="center" spacing={1}>
                       <UploadIcon fontSize="large" color="action" />
                       <Typography variant="body2">
-                        <Box component="span" color="primary.main" fontWeight="medium">
+                        <Box
+                          component="span"
+                          color="primary.main"
+                          fontWeight="medium"
+                        >
                           Click to upload
                         </Box>{" "}
                         or drag and drop
@@ -726,7 +786,10 @@ const withdrawMutation = useMutation({
       </Dialog>
 
       {/* Withdraw Dialog */}
-      <Dialog open={withdrawDialogOpen} onClose={() => setWithdrawDialogOpen(false)}>
+      <Dialog
+        open={withdrawDialogOpen}
+        onClose={() => setWithdrawDialogOpen(false)}
+      >
         <DialogTitle>Withdraw Funds</DialogTitle>
         <DialogContent>
           <TextField
@@ -746,7 +809,9 @@ const withdrawMutation = useMutation({
           <Button
             variant="contained"
             className="bg-success-500 hover:bg-success-600"
-            startIcon={withdrawMutation.isLoading ? <CircularProgress size={20} /> : null}
+            startIcon={
+              withdrawMutation.isLoading ? <CircularProgress size={20} /> : null
+            }
             disabled={
               !withdrawAmount ||
               Number(withdrawAmount) < 10 ||
@@ -756,7 +821,7 @@ const withdrawMutation = useMutation({
             onClick={async () => {
               await withdrawMutation.mutateAsync(Number(withdrawAmount));
               setWithdrawDialogOpen(false);
-              setWithdrawAmount('');
+              setWithdrawAmount("");
             }}
           >
             {withdrawMutation.isLoading ? "Processing..." : "Request"}

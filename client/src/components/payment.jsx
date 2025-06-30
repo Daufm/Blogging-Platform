@@ -28,7 +28,7 @@ const SupportAuthor = (  ) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const username = user?.username || 'Guest';
  
-//fuadmohammed368@gmail.com
+
   const presetAmounts = [50, 100, 200, 500, 1000];
 
   const paymentMethods = [
@@ -51,7 +51,7 @@ const SupportAuthor = (  ) => {
 
 
 
-    console.log('Submitting donation:', { amount, email, selectedMethod, message , authorId, username });
+    //console.log('Submitting donation:', { amount, email, selectedMethod, message , authorId, username });
     // Send data to your backend endpoint
     try {
         if (authorId === undefined || authorId === null) {

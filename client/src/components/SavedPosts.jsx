@@ -5,6 +5,7 @@ import {
   Typography,
   CircularProgress,
   Button,
+  Stack,
 } from "@mui/material";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { Link } from "react-router-dom";
@@ -41,28 +42,9 @@ const SavedPosts = ({ userId }) => {
   );
 
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        borderRadius: 3,
-        overflow: "hidden",
-        mt: 4,
-      }}
-      className="dark:bg-gray-800 bg-white"
-    >
-      {/* Header */}
-      <Box sx={{ p: 3, borderBottom: 1, borderColor: "divider" }}>
-        <Typography variant="h6" component="h2" fontWeight={700}>
-          <Box display="flex" alignItems="center" gap={1} className="dark:text-gray-300">
-            <BookmarkIcon color="primary" />
-            Saved Posts
-          </Box>
-        </Typography>
-      </Box>
-
-      {/* Body */}
+    <Stack spacing={2} width="100%">
       {savedLoading ? (
-        <Box display="flex" justifyContent="center" py={4}>
+        <Box display="flex" justifyContent="center" py={4} width="100%">
           <CircularProgress size={24} />
         </Box>
       ) : !sortedPosts || sortedPosts.length === 0 ? (
@@ -72,6 +54,7 @@ const SavedPosts = ({ userId }) => {
           alignItems="center"
           textAlign="center"
           py={8}
+          width="100%"
         >
           <BookmarkIcon sx={{ fontSize: 80, color: "text.disabled", mb: 2 }} />
           <Typography variant="h6" gutterBottom>
@@ -90,13 +73,11 @@ const SavedPosts = ({ userId }) => {
           </Button>
         </Box>
       ) : (
-        <Box>
-          {sortedPosts.map((post) => (
-            <PostListItem key={post._id} post={post} />
-          ))}
-        </Box>
+        sortedPosts.map((post) => (
+          <PostListItem key={post._id} post={post} />
+        ))
       )}
-    </Paper>
+    </Stack>
   );
 };
 

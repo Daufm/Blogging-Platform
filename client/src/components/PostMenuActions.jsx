@@ -12,6 +12,7 @@ const PostMenuActions = ({ post ,slug}) => {
   // Retrieve and decode the JWT
   const token = localStorage.getItem("token");
   const user = token ? jwtDecode(token) : null; // Decode the token to get user info
+  const userId = user?.id;
 
   const queryClient = useQueryClient();
 
@@ -20,21 +21,21 @@ const PostMenuActions = ({ post ,slug}) => {
     error,
     data: savedPosts,
   } = useQuery({
-    queryKey: ["savedPosts"],
+    queryKey: ["savedPosts", userId],
     queryFn: async () => {
-      if (!token) {
-        throw new Error("Not authenticated");
-      }
-      return axios.get(`${import.meta.env.VITE_API_URL}/users/saved`, {
+      if (!userId) return []; // Return empty array if not logged in
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/saved/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      return res.data;
     },
+    enabled: !!userId, // Only run the query if the user is logged in
   });
 
   const isAdmin = user?.role === "admin"; // Check if the user is an admin
-  const isSaved = savedPosts?.data?.some((p) => p === post._id) || false;
+  const isSaved = Array.isArray(savedPosts) && savedPosts.some((p) => p._id === post._id);
 
 
   const deleteMutation = useMutation({
@@ -104,7 +105,7 @@ const PostMenuActions = ({ post ,slug}) => {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts", userId] });
     },
     onError: (error) => {
       toast.error(error.response?.data || "Failed to save post.");

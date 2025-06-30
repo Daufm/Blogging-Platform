@@ -4,6 +4,13 @@ import { Link ,useNavigate} from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { AuthContext } from "../utils/AuthContext";
 import { toast } from "react-toastify";
+import {
+  validateEmail,
+  validatePassword,
+
+  sanitizeEmail,
+  sanitizePassword
+} from "../utils/Validator"
 
 const LoginPage = () => {
   // useContext to get the login function from AuthContext
@@ -22,6 +29,21 @@ const LoginPage = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+
+    // Validate email and password
+
+    // if (!validaeEmail(email)) {
+    //   setError("Please enter a valid email address.");
+    //   setIsLoading(false);
+    //   return;
+    // }
+    // if (!validatePassword(password)) {
+    //   setError("Password must be at least 8 characters long and contain a mix of letters, numbers, and special characters.");
+    //   setIsLoading(false);
+    //   return;
+    // }
+  
+
     
     try {
      
@@ -62,6 +84,12 @@ const handleSendCode = async (e)=>{
   setIsLoading(true);
   setError("");
   try {
+    // Validate email
+    if (!validateEmail(email2)) {
+      toast.error("Please enter a valid email address.");
+      setIsLoading(false);
+      return;
+    }
 
     const email =  email2;
     if (!email) {

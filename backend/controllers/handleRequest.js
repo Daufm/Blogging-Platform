@@ -131,6 +131,7 @@ export const approveFund = async (req, res) => {
 };
 
 
+// Only delete, do not update status
 export const rejectFund = async (req, res) => {
   const { id } = req.params;
 
@@ -139,9 +140,7 @@ export const rejectFund = async (req, res) => {
     if (!fundRequest) {
       return res.status(404).json({ message: 'Fund request not found' });
     }
-    fundRequest.status = 'rejected';
-    await fundRequest.save();
-    res.status(200).json({ message: 'Fund request rejected.' });
+    res.status(200).json({ message: 'Fund request rejected and deleted.' });
   }
   catch (error) {
     console.error('Error rejecting fund request:', error);

@@ -22,7 +22,7 @@ export const initiateDonation = async (req, res) => {
 
   amount = amount ? parseFloat(amount) : 0;
   name = name?.trim() || 'Test User';
-  email = "fuadmohammed368@gmail.com".trim() || 'test@example.com';
+  const email = "fuadmohammed368@gmail.com".trim() || 'test@example.com';
   message = message?.trim() || '';
   authorId= authorId?.trim() || null;
   method = method?.trim() || 'chapa'; // Default to 'chapa' if not provided

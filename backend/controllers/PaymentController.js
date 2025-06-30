@@ -10,12 +10,12 @@ dotenv.config(); // Ensure environment variables are loaded
 
 const { CHAPA_SECRET_KEY, CLIENT_URL,EMAIL_USER } = process.env;
 
-console.log('Using email:', EMAIL_USER);
+
 
 export const initiateDonation = async (req, res) => {
   console.log('Initiating donation with body:', req.body);
 
-  
+  console.log('Using email:', EMAIL_USER);
   let { amount, name , message ,method ,authorId } = req.body;
  
 

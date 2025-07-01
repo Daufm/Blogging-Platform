@@ -163,14 +163,22 @@ const UserProfile = () => {
       return toast.error("Update at least one field.");
     }
 
+     // Always use the current image if no new image is uploaded
+  const imagePath =
+              (img && img.filePath) ||
+              data.user?.img || // use data.user?.img, not data.img
+              "";
+
+
     const updatedData = {
       bio,
       username: username1,
-      img: img?.filePath || data.img,
+      img: imagePath,
       cbeAccount,
       phoneNo,
       byMecoffe,
     };
+    console.log("Profile update data:", updatedData);
     mutation.mutate(updatedData);
   };
 

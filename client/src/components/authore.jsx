@@ -90,10 +90,10 @@ const handleFollow = async (authorId) => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Author Header */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-10">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 mb-10 transition-colors">
         <div className="flex flex-col md:flex-row items-center gap-8 p-6 md:p-8">
           <div className="relative group">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg ring-2 ring-blue-100">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg ring-2 ring-blue-100 dark:ring-blue-900 transition-colors">
               <Image
                 src={data.authorData.img || "/default-avatar.png"}
                 alt={data.authorData.username}
@@ -105,35 +105,29 @@ const handleFollow = async (authorId) => {
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                   {data.authorData.username}
                 </h1>
-                <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                   {data.authorData.role}
                 </span>
               </div>
-              
               <button
                 onClick={handleSupportAuthor}
                 className="flex-shrink-0 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
               >
-               
-                 💖 Support {data.authorData.username}
+                💖 Support {data.authorData.username}
               </button>
-
-              <button
+              {/* <button
                 onClick={handlePaymentMethod}
                 className="flex-shrink-0 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
-                
                 fullWidth={{ xs: true, sm: false }}
-               >
-               Payment
-              </button>
+              >
+                Payment
+              </button> */}
             </div>
 
-            
-
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               {data.authorData.bio || "This author hasn't written a bio yet."}
             </p>
 
@@ -143,7 +137,7 @@ const handleFollow = async (authorId) => {
                   href={data.authorData.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -160,7 +154,7 @@ const handleFollow = async (authorId) => {
                   Website
                 </a>
               )}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm font-medium">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4"
@@ -183,8 +177,8 @@ const handleFollow = async (authorId) => {
             
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors 
                   ${isFollowing 
-                    ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                    : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}
+                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600' 
+                    : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800'}
                 `}
               >
                 {isFollowing ? "Following" : "Follow"}
@@ -195,12 +189,12 @@ const handleFollow = async (authorId) => {
 
             <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 text-sm font-medium">
+                <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                   {data.authorData.followers.length} Followers
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 text-sm font-medium">
+                <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                   {data.authorData.following.length} Following
                 </span>
               </div>
@@ -215,24 +209,24 @@ const handleFollow = async (authorId) => {
       {/* Posts Section */}
       <div className="mb-12">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 text-blue-500"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
-              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
             </svg>
             Latest Posts
           </h2>
-          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+          <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
             {data.posts.length} {data.posts.length === 1 ? "post" : "posts"}
           </span>
         </div>
 
         {data.posts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 p-8 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 p-8 text-center transition-colors">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-16 w-16 mx-auto text-gray-400 mb-4"
@@ -247,10 +241,10 @@ const handleFollow = async (authorId) => {
                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
               No posts published yet
             </h3>
-            <p className="text-gray-500 max-w-md mx-auto">
+            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
               When {data.author.username} publishes posts, they&apos;ll appear here.
             </p>
           </div>

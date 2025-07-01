@@ -33,7 +33,8 @@ const Upload = ({ children, type, setProgress = () => {}, setData }) => {
   };
   const onSuccess = (res) => {
     console.log(res);
-    setData(res);
+    // setData(res);
+    setData({ filePath: res.url }); // set filePath to the uploaded image URL
   };
   const onUploadProgress = (progress) => {
     console.log(progress);
